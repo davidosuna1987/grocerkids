@@ -30,6 +30,8 @@ type UploadListDialogProps = {
   onOpenChange: (open: boolean) => void;
 };
 
+type ImageSource = 'upload' | 'camera';
+
 export default function UploadListDialog({
   addMultipleProducts,
   open,
@@ -37,6 +39,7 @@ export default function UploadListDialog({
 }: UploadListDialogProps) {
   const [isPending, setIsPending] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
+  const [imageSource, setImageSource] = useState<ImageSource | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -97,6 +100,7 @@ export default function UploadListDialog({
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
+      setImageSource('upload');
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result as string);
@@ -109,12 +113,33 @@ export default function UploadListDialog({
     if (videoRef.current && canvasRef.current) {
       const video = videoRef.current;
       const canvas = canvasRef.current;
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+      
+      const videoRect = video.getBoundingClientRect();
+      const videoAspectRatio = video.videoWidth / video.videoHeight;
+      const containerAspectRatio = videoRect.width / videoRect.height;
+      
+      let sx, sy, sWidth, sHeight;
+
+      if (videoAspectRatio > containerAspectRatio) { // Video is wider than container
+        sHeight = video.videoHeight;
+        sWidth = sHeight * containerAspectRatio;
+        sx = (video.videoWidth - sWidth) / 2;
+        sy = 0;
+      } else { // Video is taller than container
+        sWidth = video.videoWidth;
+        sHeight = sWidth / containerAspectRatio;
+        sx = 0;
+        sy = (video.videoHeight - sHeight) / 2;
+      }
+
+      canvas.width = sWidth;
+      canvas.height = sHeight;
+      
       const context = canvas.getContext('2d');
       if (context) {
-        context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+        context.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, sWidth, sHeight);
         const dataUri = canvas.toDataURL('image/jpeg');
+        setImageSource('camera');
         setPreview(dataUri);
       }
     }
@@ -156,6 +181,7 @@ export default function UploadListDialog({
   
   const resetPreview = () => {
     setPreview(null);
+    setImageSource(null);
     if(activeTab === 'camera') {
       getCameraPermission();
     }
@@ -164,6 +190,7 @@ export default function UploadListDialog({
   const handleExited = () => {
     setPreview(null);
     setIsPending(false);
+    setImageSource(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
     // setActiveTab('upload');
   };
@@ -182,7 +209,7 @@ export default function UploadListDialog({
             />
           </div>
           <Button variant="outline" onClick={resetPreview} disabled={isPending}>
-            Hacer otra foto
+             {imageSource === 'camera' ? 'Hacer otra foto' : 'Cambiar foto'}
           </Button>
         </div>
       );

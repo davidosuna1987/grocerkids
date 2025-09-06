@@ -36,7 +36,7 @@ export default function ProductSearchForm({ addProduct }: ProductSearchFormProps
       />
       <Button
         type="submit"
-        className="h-12 bg-primary hover:bg-primary/90 rounded-l-none p-2"
+        className="h-12 bg-primary hover:bg-primary/90 rounded-l-none px-6"
         disabled={!itemName.trim() || isAdding}
         aria-label="Add product"
       >

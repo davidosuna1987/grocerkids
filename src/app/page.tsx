@@ -14,9 +14,9 @@ import {
   AlertTriangle,
   Camera,
   PartyPopper,
+  ShoppingCart,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import Image from 'next/image';
 import { Confetti } from '@/components/effects/Confetti';
 import { useConfetti } from '@/hooks/useConfetti';
 import {
@@ -163,15 +163,9 @@ export default function Home() {
             />
           ) : (
             <div className="text-center py-16 px-4">
-              <div className="relative mx-auto h-40 w-40 text-muted-foreground">
-                <Image
-                  src="https://picsum.photos/400/400"
-                  alt="Cesta de la compra vacía"
-                  data-ai-hint="shopping cart"
-                  layout="fill"
-                  className="opacity-50 rounded-full"
-                />
-              </div>
+               <div className="mx-auto flex items-center justify-center size-32 rounded-full bg-secondary/50 text-secondary-foreground">
+                  <ShoppingCart className="size-16" />
+                </div>
               <h2 className="mt-6 text-2xl font-headline font-semibold text-foreground">
                 ¡Tu lista está vacía!
               </h2>

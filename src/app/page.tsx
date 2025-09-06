@@ -165,9 +165,9 @@ export default function Home() {
             <div className="text-center py-16 px-4">
               <div className="relative mx-auto h-40 w-40 text-muted-foreground">
                 <Image
-                  src="https://picsum.photos/200/200"
+                  src="https://picsum.photos/400/400"
                   alt="Cesta de la compra vacía"
-                  data-ai-hint="grocery basket"
+                  data-ai-hint="shopping cart"
                   layout="fill"
                   className="opacity-50 rounded-full"
                 />

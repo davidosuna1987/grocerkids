@@ -47,34 +47,34 @@ export default function UploadListDialog({
   >(undefined);
   const streamRef = useRef<MediaStream | null>(null);
 
+  const getCameraPermission = async () => {
+    try {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error('La cámara no es compatible con este navegador.');
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' },
+      });
+      streamRef.current = stream;
+      setHasCameraPermission(true);
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (error) {
+      console.error('Error al acceder a la cámara:', error);
+      setHasCameraPermission(false);
+      toast({
+        variant: 'destructive',
+        title: 'Acceso a la cámara denegado',
+        description:
+          'Por favor, activa los permisos de la cámara en los ajustes de tu navegador para usar esta función.',
+      });
+    }
+  };
+
   useEffect(() => {
-    if (open && activeTab === 'camera') {
-      const getCameraPermission = async () => {
-        try {
-          if (!navigator.mediaDevices?.getUserMedia) {
-            throw new Error('La cámara no es compatible con este navegador.');
-          }
-          const stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'environment' },
-          });
-          streamRef.current = stream;
-          setHasCameraPermission(true);
-
-          if (videoRef.current) {
-            videoRef.current.srcObject = stream;
-          }
-        } catch (error) {
-          console.error('Error al acceder a la cámara:', error);
-          setHasCameraPermission(false);
-          toast({
-            variant: 'destructive',
-            title: 'Acceso a la cámara denegado',
-            description:
-              'Por favor, activa los permisos de la cámara en los ajustes de tu navegador para usar esta función.',
-          });
-        }
-      };
-
+    if (open && activeTab === 'camera' && !preview) {
       getCameraPermission();
     } else {
       // Stop camera stream when sheet is closed or tab is switched
@@ -92,7 +92,7 @@ export default function UploadListDialog({
         if(videoRef.current) videoRef.current.srcObject = null;
       }
     };
-  }, [open, activeTab, toast]);
+  }, [open, activeTab, preview, toast]);
   
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -153,6 +153,13 @@ export default function UploadListDialog({
   const handleClose = () => {
     onOpenChange(false);
   };
+  
+  const resetPreview = () => {
+    setPreview(null);
+    if(activeTab === 'camera') {
+      getCameraPermission();
+    }
+  };
 
   const handleExited = () => {
     setPreview(null);
@@ -174,7 +181,7 @@ export default function UploadListDialog({
               className="object-contain h-full w-full p-2"
             />
           </div>
-          <Button variant="outline" onClick={() => setPreview(null)} disabled={isPending}>
+          <Button variant="outline" onClick={resetPreview} disabled={isPending}>
             Hacer otra foto
           </Button>
         </div>

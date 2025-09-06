@@ -7,13 +7,21 @@ import ProductSearchForm from '@/components/shopping/ProductSearchForm';
 import ProductGrid from '@/components/shopping/ProductGrid';
 import UploadListDialog from '@/components/shopping/UploadListDialog';
 import { Button } from '@/components/ui/button';
-import { Trash2, List, Plus, Grid } from 'lucide-react';
+import { Trash2, List, Plus, Grid, AlertTriangle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
 import { Confetti } from '@/components/effects/Confetti';
 import { useConfetti } from '@/hooks/useConfetti';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle } from 'lucide-react';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+} from '@/components/ui/sheet';
 
 type ViewMode = 'list' | 'grid';
 
@@ -30,6 +38,7 @@ export default function Home() {
   const { toast } = useToast();
   const [viewMode, setViewMode] = React.useState<ViewMode>('list');
   const [isUploadDialogOpen, setUploadDialogOpen] = React.useState(false);
+  const [isClearListSheetOpen, setClearListSheetOpen] = React.useState(false);
 
   const allProductsBought =
     products.length > 0 && products.every(p => p.bought);
@@ -43,7 +52,8 @@ export default function Home() {
     if (allProductsBought && !celebrationToastShown) {
       toast({
         duration: 5000,
-        className: 'border-green-500 bg-green-50 dark:bg-green-900/50',
+        className:
+          'border-green-500 bg-green-50 dark:bg-green-900/50 sm:bottom-auto sm:top-0',
         children: (
           <div className="flex items-start gap-4 w-full">
             <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400 mt-1" />
@@ -64,6 +74,11 @@ export default function Home() {
     }
   }, [allProductsBought, confettiTrigger, toast, celebrationToastShown]);
 
+  const handleClearList = () => {
+    clearList();
+    setClearListSheetOpen(false);
+  };
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
       {showConfetti && <Confetti />}
@@ -72,6 +87,31 @@ export default function Home() {
         onOpenChange={setUploadDialogOpen}
         addMultipleProducts={addMultipleProducts}
       />
+      <Sheet open={isClearListSheetOpen} onOpenChange={setClearListSheetOpen}>
+        <SheetContent side="bottom" className="rounded-t-2xl">
+          <SheetHeader className="text-center">
+            <div className="mx-auto bg-destructive/10 p-2 rounded-full w-fit">
+              <AlertTriangle className="size-6 text-destructive" />
+            </div>
+            <SheetTitle>¿Estás seguro?</SheetTitle>
+            <SheetDescription>
+              Esta acción no se puede deshacer. Se eliminarán todos los
+              productos de tu lista.
+            </SheetDescription>
+          </SheetHeader>
+          <SheetFooter className="mt-6 flex-col-reverse sm:flex-col-reverse gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setClearListSheetOpen(false)}
+            >
+              Cancelar
+            </Button>
+            <Button variant="destructive" onClick={handleClearList}>
+              Vaciar Cesta
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
 
       <Header />
 
@@ -162,7 +202,7 @@ export default function Home() {
           <Button
             variant="ghost"
             className="flex flex-col items-center gap-1 text-muted-foreground h-auto hover:bg-transparent hover:text-primary"
-            onClick={clearList}
+            onClick={() => setClearListSheetOpen(true)}
             disabled={products.length === 0}
           >
             <Trash2 className="size-7" />

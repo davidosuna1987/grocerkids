@@ -2,10 +2,9 @@
 
 import type { Product } from '@/types';
 import { cn } from '@/lib/utils';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Check, Trash2 } from 'lucide-react';
 import Image from 'next/image';
+import { Button } from '../ui/button';
+import { Trash2 } from 'lucide-react';
 
 type ProductCardProps = {
   product: Product;
@@ -14,40 +13,33 @@ type ProductCardProps = {
 };
 
 export default function ProductCard({ product, onToggleBought, onDelete }: ProductCardProps) {
+  const uniqueId = `item-${product.id}`;
   return (
-    <Card
-      className={cn(
-        'group relative overflow-hidden rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl',
-        product.bought && 'shadow-sm hover:shadow-md'
-      )}
-    >
-      <CardContent className="p-0">
-        <div
-          className={cn(
-            'relative aspect-square w-full transition-opacity duration-500',
-            product.bought && 'opacity-40 grayscale'
-          )}
-        >
+    <div className="flex items-center gap-4 bg-card p-3 rounded-2xl shadow-sm transition-all duration-300 relative group">
+       <input 
+        id={uniqueId}
+        type="checkbox" 
+        className="item-checkbox size-6 shrink-0 appearance-none rounded-lg border-2 border-input bg-transparent focus:ring-0 focus:ring-offset-0 cursor-pointer"
+        checked={product.bought}
+        onChange={() => onToggleBought(product.id)}
+      />
+      <label htmlFor={uniqueId} className="item-content flex items-center gap-4 w-full cursor-pointer">
+        <div className="relative aspect-square bg-cover rounded-xl size-16 shrink-0">
           <Image
             src={product.image}
             alt={product.name}
             data-ai-hint={product.name}
             fill
-            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-            className="object-cover"
+            sizes="64px"
+            className="object-cover rounded-xl"
           />
         </div>
-
-        <div
-          className={cn(
-            'absolute inset-0 flex items-center justify-center bg-primary/70 checked',
-            !product.bought && 'hidden'
-          )}
-        >
-          <Check className="h-16 w-16 text-primary-foreground check-icon" />
+        <div className="flex-grow">
+          <p className="text-lg font-semibold text-foreground">{product.name}</p>
+          <p className="text-sm text-muted-foreground">Produce</p>
         </div>
-        
-        <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+      </label>
+       <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <Button
             size="icon"
             variant="destructive"
@@ -61,28 +53,6 @@ export default function ProductCard({ product, onToggleBought, onDelete }: Produ
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
-
-        <button
-          onClick={() => onToggleBought(product.id)}
-          className="absolute inset-0 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-xl"
-          aria-label={`Mark ${product.name} as ${product.bought ? 'not bought' : 'bought'}`}
-        />
-      </CardContent>
-      <div
-        className={cn(
-          'p-3 text-center transition-colors',
-          product.bought ? 'bg-muted/80' : 'bg-card'
-        )}
-      >
-        <p
-          className={cn(
-            'font-headline font-semibold text-foreground truncate',
-            product.bought && 'text-muted-foreground line-through'
-          )}
-        >
-          {product.name}
-        </p>
-      </div>
-    </Card>
+    </div>
   );
 }

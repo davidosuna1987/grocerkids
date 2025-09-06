@@ -7,13 +7,18 @@ import ProductSearchForm from '@/components/shopping/ProductSearchForm';
 import ProductGrid from '@/components/shopping/ProductGrid';
 import UploadListDialog from '@/components/shopping/UploadListDialog';
 import { Button } from '@/components/ui/button';
-import { Trash2, List, Grid, AlertTriangle, Camera } from 'lucide-react';
+import {
+  Trash2,
+  List,
+  Grid,
+  AlertTriangle,
+  Camera,
+  PartyPopper,
+} from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
 import { Confetti } from '@/components/effects/Confetti';
 import { useConfetti } from '@/hooks/useConfetti';
-import { useToast } from '@/hooks/use-toast';
-import { CheckCircle } from 'lucide-react';
 import {
   Sheet,
   SheetContent,
@@ -35,48 +40,31 @@ export default function Home() {
     deleteProduct,
     clearList,
   } = useShoppingList();
-  const { toast } = useToast();
   const [viewMode, setViewMode] = React.useState<ViewMode>('list');
   const [isUploadDialogOpen, setUploadDialogOpen] = React.useState(false);
   const [isClearListSheetOpen, setClearListSheetOpen] = React.useState(false);
+  const [isCelebrationSheetOpen, setCelebrationSheetOpen] =
+    React.useState(false);
 
   const allProductsBought =
     products.length > 0 && products.every(p => p.bought);
   const { showConfetti, confettiTrigger } = useConfetti(allProductsBought);
 
-  const [celebrationToastShown, setCelebrationToastShown] =
-    React.useState(false);
-
   React.useEffect(() => {
     confettiTrigger();
-    if (allProductsBought && !celebrationToastShown) {
-      toast({
-        duration: 5000,
-        className:
-          'border-green-500 bg-green-50 dark:bg-green-900/50 sm:bottom-auto sm:top-0',
-        children: (
-          <div className="flex items-start gap-4 w-full">
-            <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400 mt-1" />
-            <div className="flex-grow">
-              <p className="font-headline font-bold text-lg text-green-700 dark:text-green-300">
-                ¡Enhorabuena!
-              </p>
-              <p className="text-green-600 dark:text-green-400">
-                ¡Has encontrado todos los productos!
-              </p>
-            </div>
-          </div>
-        ),
-      });
-      setCelebrationToastShown(true);
-    } else if (!allProductsBought && celebrationToastShown) {
-      setCelebrationToastShown(false);
+    if (allProductsBought) {
+      setCelebrationSheetOpen(true);
     }
-  }, [allProductsBought, confettiTrigger, toast, celebrationToastShown]);
+  }, [allProductsBought, confettiTrigger]);
 
   const handleClearList = () => {
     clearList();
     setClearListSheetOpen(false);
+    setCelebrationSheetOpen(false); // Also close celebration sheet if open
+  };
+
+  const handleCloseCelebration = () => {
+    setCelebrationSheetOpen(false);
   };
 
   return (
@@ -109,6 +97,30 @@ export default function Home() {
             <Button variant="destructive" onClick={handleClearList}>
               Vaciar Cesta
             </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+
+      <Sheet
+        open={isCelebrationSheetOpen}
+        onOpenChange={setCelebrationSheetOpen}
+      >
+        <SheetContent side="bottom" className="rounded-t-2xl">
+          <SheetHeader className="text-center">
+            <div className="mx-auto bg-primary/10 p-2 rounded-full w-fit">
+              <PartyPopper className="size-6 text-primary" />
+            </div>
+            <SheetTitle>¡Enhorabuena!</SheetTitle>
+            <SheetDescription>
+              ¡Has encontrado todos los productos de tu lista! ¿Qué quieres
+              hacer ahora?
+            </SheetDescription>
+          </SheetHeader>
+          <SheetFooter className="mt-6 flex-col-reverse sm:flex-col-reverse gap-2">
+            <Button variant="outline" onClick={handleCloseCelebration}>
+              Cerrar
+            </Button>
+            <Button onClick={handleClearList}>Vaciar Cesta</Button>
           </SheetFooter>
         </SheetContent>
       </Sheet>

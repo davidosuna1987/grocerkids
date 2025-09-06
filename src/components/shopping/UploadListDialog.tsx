@@ -6,24 +6,24 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
-  DialogFooter,
   DialogDescription,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Camera, FileUp, Loader2 } from 'lucide-react';
+import { FileUp, Loader2 } from 'lucide-react';
 import { generateListFromImage } from '@/actions/shopping';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 
 type UploadListDialogProps = {
   addMultipleProducts: (names: string[]) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 };
 
-export default function UploadListDialog({ addMultipleProducts }: UploadListDialogProps) {
-  const [open, setOpen] = useState(false);
+export default function UploadListDialog({ addMultipleProducts, open, onOpenChange }: UploadListDialogProps) {
   const [isPending, setIsPending] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -75,17 +75,11 @@ export default function UploadListDialog({ addMultipleProducts }: UploadListDial
     setPreview(null);
     setFile(null);
     if(fileInputRef.current) fileInputRef.current.value = "";
-    setOpen(false);
+    onOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Camera className="mr-2 h-4 w-4" />
-          Upload List
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]" onInteractOutside={(e) => { if(!isPending) e.preventDefault()}} onCloseAutoFocus={handleClose}>
         <DialogHeader>
           <DialogTitle>Upload a Shopping List</DialogTitle>

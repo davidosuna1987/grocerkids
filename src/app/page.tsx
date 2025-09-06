@@ -6,14 +6,15 @@ import Header from '@/components/layout/Header';
 import ProductSearchForm from '@/components/shopping/ProductSearchForm';
 import ProductGrid from '@/components/shopping/ProductGrid';
 import UploadListDialog from '@/components/shopping/UploadListDialog';
-import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
 import { Confetti } from '@/components/effects/Confetti';
 import { useConfetti } from '@/hooks/useConfetti';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Grid, List, Plus, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+type ViewMode = 'list' | 'grid';
 
 export default function Home() {
   const {
@@ -26,6 +27,9 @@ export default function Home() {
     clearList,
   } = useShoppingList();
   const { toast } = useToast();
+  const [viewMode, setViewMode] = React.useState<ViewMode>('list');
+  const [isUploadDialogOpen, setUploadDialogOpen] = React.useState(false);
+
 
   const allProductsBought = products.length > 0 && products.every(p => p.bought);
   const { showConfetti, confettiTrigger } = useConfetti(allProductsBought);
@@ -35,19 +39,19 @@ export default function Home() {
   React.useEffect(() => {
     confettiTrigger();
     if (allProductsBought && !celebrationToastShown) {
-      toast({
-        duration: 5000,
-        className: 'border-green-500 bg-green-50 dark:bg-green-900/50',
-        children: (
-          <div className="flex items-start gap-4 w-full">
-            <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400 mt-1" />
-            <div className="flex-grow">
-              <p className="font-headline font-bold text-lg text-green-700 dark:text-green-300">¡Enhorabuena!</p>
-              <p className="text-green-600 dark:text-green-400">¡Has encontrado todos los productos!</p>
-            </div>
-          </div>
-        ),
-      });
+        toast({
+            duration: 5000,
+            className: 'border-green-500 bg-green-50 dark:bg-green-900/50',
+            children: (
+              <div className="flex items-start gap-4 w-full">
+                <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400 mt-1" />
+                <div className="flex-grow">
+                  <p className="font-headline font-bold text-lg text-green-700 dark:text-green-300">¡Enhorabuena!</p>
+                  <p className="text-green-600 dark:text-green-400">¡Has encontrado todos los productos!</p>
+                </div>
+              </div>
+            ),
+          });
       setCelebrationToastShown(true);
     } else if (!allProductsBought && celebrationToastShown) {
       setCelebrationToastShown(false);
@@ -58,37 +62,25 @@ export default function Home() {
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
        {showConfetti && <Confetti />}
-      <Header>
-        <div className="flex items-center gap-2">
-          <UploadListDialog addMultipleProducts={addMultipleProducts} />
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={clearList}
-            disabled={products.length === 0}
-            aria-label="Clear all items from the list"
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Clear
-          </Button>
-        </div>
-      </Header>
+       <UploadListDialog open={isUploadDialogOpen} onOpenChange={setUploadDialogOpen} addMultipleProducts={addMultipleProducts} />
+
+      <Header />
       <main className="flex-1 container mx-auto px-4 py-6 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl">
           <ProductSearchForm addProduct={addProduct} />
         </div>
         <div className="mt-8">
           {isLoading ? (
-            <div className="space-y-3">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="flex items-center gap-4 bg-card p-3 rounded-2xl shadow-sm">
-                  <Skeleton className="size-6 shrink-0 rounded-lg" />
-                  <Skeleton className="size-16 rounded-xl" />
-                  <div className="flex-grow space-y-2">
-                    <Skeleton className="h-5 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                  </div>
-                </div>
+             <div className={viewMode === 'list' ? 'space-y-3' : 'grid grid-cols-2 gap-4'}>
+              {[...Array(viewMode === 'list' ? 3 : 4)].map((_, i) => (
+                 <div key={i} className="flex items-center gap-4 bg-card p-3 rounded-2xl shadow-sm">
+                 <Skeleton className="size-6 shrink-0 rounded-lg" />
+                 <Skeleton className="size-16 rounded-xl" />
+                 <div className="flex-grow space-y-2">
+                   <Skeleton className="h-5 w-3/4" />
+                   <Skeleton className="h-4 w-1/2" />
+                 </div>
+               </div>
               ))}
             </div>
           ) : products.length > 0 ? (
@@ -96,6 +88,7 @@ export default function Home() {
                 products={products}
                 onToggleBought={toggleProductBought}
                 onDelete={deleteProduct}
+                viewMode={viewMode}
               />
           ) : (
             <div className="text-center py-16 px-4">
@@ -112,6 +105,26 @@ export default function Home() {
           )}
         </div>
       </main>
+
+       <footer className="sticky bottom-0 bg-card shadow-[0_-2px_5px_rgba(0,0,0,0.05)] rounded-t-2xl">
+        <nav className="flex justify-around items-center h-20 px-4 max-w-2xl mx-auto">
+          <Button variant="ghost" className="flex flex-col items-center gap-1 text-muted-foreground h-auto" onClick={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')}>
+             {viewMode === 'list' ? <Grid className="size-7" /> : <List className="size-7" />}
+            <span className="text-xs font-semibold">{viewMode === 'list' ? 'Grid' : 'List'}</span>
+          </Button>
+
+          <Button variant="ghost" className="text-card-foreground h-auto" onClick={() => setUploadDialogOpen(true)}>
+             <div className="bg-primary p-3 rounded-full text-primary-foreground -mt-8 shadow-lg shadow-primary/30">
+                <Plus className="size-10" />
+            </div>
+          </Button>
+
+          <Button variant="ghost" className="flex flex-col items-center gap-1 text-muted-foreground h-auto" onClick={clearList} disabled={products.length === 0}>
+            <Trash2 className="size-7" />
+            <span className="text-xs font-semibold">Clear</span>
+          </Button>
+        </nav>
+      </footer>
     </div>
   );
 }

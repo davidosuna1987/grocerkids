@@ -2,27 +2,35 @@
 
 import type { Product } from '@/types';
 import ProductCard from './ProductCard';
+import { cn } from '@/lib/utils';
 
 type ProductGridProps = {
   products: Product[];
   onToggleBought: (id: string) => void;
   onDelete: (id: string) => void;
+  viewMode?: 'list' | 'grid';
 };
 
-export default function ProductGrid({ products, onToggleBought, onDelete }: ProductGridProps) {
+export default function ProductGrid({ products, onToggleBought, onDelete, viewMode = 'list' }: ProductGridProps) {
   const sortedProducts = [...products].sort((a, b) => {
     if (a.bought === b.bought) return 0;
     return a.bought ? 1 : -1;
   });
 
   return (
-    <div className="space-y-3">
+    <div
+      className={cn({
+        'space-y-3': viewMode === 'list',
+        'grid grid-cols-2 gap-4': viewMode === 'grid',
+      })}
+    >
       {sortedProducts.map((product) => (
         <ProductCard
           key={product.id}
           product={product}
           onToggleBought={onToggleBought}
           onDelete={onDelete}
+          viewMode={viewMode}
         />
       ))}
     </div>

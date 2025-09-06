@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="/public/logo.png" alt="Grocer Kids Logo" width="400">
+</div>
+
 # Grocer Kids: ¡La Aventura de Hacer la Compra! 🛒✨
 
 ¡Convierte la compra en un juego divertido para toda la familia! **Grocer Kids** es una lista de la compra visual e interactiva diseñada para que los más pequeños participen y aprendan mientras os preparáis para ir al supermercado.

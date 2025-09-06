@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
+import { Confetti } from '@/components/effects/Confetti';
+import { useConfetti } from '@/hooks/useConfetti';
 
 export default function Home() {
   const {
@@ -22,8 +24,16 @@ export default function Home() {
     clearList,
   } = useShoppingList();
 
+  const allProductsBought = products.length > 0 && products.every(p => p.bought);
+  const { showConfetti, confettiTrigger } = useConfetti(allProductsBought);
+
+  React.useEffect(() => {
+    confettiTrigger();
+  }, [allProductsBought, confettiTrigger]);
+
   return (
     <div className="flex min-h-screen w-full flex-col">
+       {showConfetti && <Confetti />}
       <Header>
         <div className="flex items-center gap-2">
           <UploadListDialog addMultipleProducts={addMultipleProducts} />
@@ -54,11 +64,19 @@ export default function Home() {
               ))}
             </div>
           ) : products.length > 0 ? (
-            <ProductGrid
-              products={products}
-              onToggleBought={toggleProductBought}
-              onDelete={deleteProduct}
-            />
+            <>
+              {allProductsBought && !showConfetti && (
+                 <div className="text-center py-8 px-4 bg-green-100 dark:bg-green-900/50 rounded-xl mb-8 border border-green-200 dark:border-green-800">
+                   <h2 className="text-3xl font-headline font-bold text-green-700 dark:text-green-300">¡Enhorabuena!</h2>
+                   <p className="mt-2 text-green-600 dark:text-green-400">¡Has encontrado todos los productos!</p>
+                 </div>
+              )}
+              <ProductGrid
+                products={products}
+                onToggleBought={toggleProductBought}
+                onDelete={deleteProduct}
+              />
+            </>
           ) : (
             <div className="text-center py-16 px-4">
               <div className="relative mx-auto h-40 w-40 text-muted-foreground">

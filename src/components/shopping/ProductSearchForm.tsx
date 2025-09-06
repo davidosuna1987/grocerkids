@@ -24,28 +24,27 @@ export default function ProductSearchForm({ addProduct }: ProductSearchFormProps
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex w-full items-center gap-2">
+    <form onSubmit={handleSubmit} className="flex w-full items-center">
       <Input
         type="text"
         placeholder="e.g., Bananas, Milk, Bread..."
         value={itemName}
         onChange={(e) => setItemName(e.target.value)}
-        className="h-12 flex-grow text-lg shadow-inner"
+        className="h-12 flex-grow text-lg shadow-inner rounded-r-none"
         aria-label="Product name"
         disabled={isAdding}
       />
       <Button
         type="submit"
-        size="lg"
-        className="h-12 bg-accent hover:bg-accent/90 text-accent-foreground"
+        className="h-12 bg-primary hover:bg-primary/90 rounded-l-none p-2"
         disabled={!itemName.trim() || isAdding}
+        aria-label="Add product"
       >
         {isAdding ? (
-          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+          <Loader2 className="h-5 w-5 animate-spin" />
         ) : (
-          <PlusCircle className="mr-2 h-5 w-5" />
+          <PlusCircle className="h-5 w-5" />
         )}
-        <span className="font-bold">Add</span>
       </Button>
     </form>
   );

@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
-  title: 'GrocerKids',
+  title: 'Grocer Kids',
   description: 'Una lista de la compra divertida y visual para niños y padres.',
 };
 

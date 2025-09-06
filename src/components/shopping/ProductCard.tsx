@@ -42,7 +42,6 @@ export default function ProductCard({ product, onToggleBought, onDelete, viewMod
         </div>
         <div className={cn( "flex-grow", viewMode === 'grid' ? 'text-center' : '')}>
           <p className="font-semibold text-foreground">{product.name}</p>
-          {viewMode === 'list' && <p className="text-sm text-muted-foreground">Frutas y verduras</p>}
         </div>
       </label>
        <div className={cn("absolute opacity-0 group-hover:opacity-100 transition-opacity", viewMode === 'list' ? 'top-1 right-1' : 'top-2 right-2')}>

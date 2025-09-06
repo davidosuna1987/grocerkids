@@ -12,6 +12,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
 import { Confetti } from '@/components/effects/Confetti';
 import { useConfetti } from '@/hooks/useConfetti';
+import { useToast } from '@/hooks/use-toast';
+import { CheckCircle } from 'lucide-react';
 
 export default function Home() {
   const {
@@ -23,13 +25,35 @@ export default function Home() {
     deleteProduct,
     clearList,
   } = useShoppingList();
+  const { toast } = useToast();
 
   const allProductsBought = products.length > 0 && products.every(p => p.bought);
   const { showConfetti, confettiTrigger } = useConfetti(allProductsBought);
+  
+  const [celebrationToastShown, setCelebrationToastShown] = React.useState(false);
 
   React.useEffect(() => {
     confettiTrigger();
-  }, [allProductsBought, confettiTrigger]);
+    if (allProductsBought && !celebrationToastShown) {
+      toast({
+        duration: 5000,
+        className: 'border-green-500 bg-green-50 dark:bg-green-900/50',
+        children: (
+          <div className="flex items-start gap-4 w-full">
+            <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400 mt-1" />
+            <div className="flex-grow">
+              <p className="font-headline font-bold text-lg text-green-700 dark:text-green-300">¡Enhorabuena!</p>
+              <p className="text-green-600 dark:text-green-400">¡Has encontrado todos los productos!</p>
+            </div>
+          </div>
+        ),
+      });
+      setCelebrationToastShown(true);
+    } else if (!allProductsBought && celebrationToastShown) {
+      setCelebrationToastShown(false);
+    }
+  }, [allProductsBought, confettiTrigger, toast, celebrationToastShown]);
+
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -64,19 +88,11 @@ export default function Home() {
               ))}
             </div>
           ) : products.length > 0 ? (
-            <>
-              {allProductsBought && !showConfetti && (
-                 <div className="text-center py-8 px-4 bg-green-100 dark:bg-green-900/50 rounded-xl mb-8 border border-green-200 dark:border-green-800">
-                   <h2 className="text-3xl font-headline font-bold text-green-700 dark:text-green-300">¡Enhorabuena!</h2>
-                   <p className="mt-2 text-green-600 dark:text-green-400">¡Has encontrado todos los productos!</p>
-                 </div>
-              )}
-              <ProductGrid
+            <ProductGrid
                 products={products}
                 onToggleBought={toggleProductBought}
                 onDelete={deleteProduct}
               />
-            </>
           ) : (
             <div className="text-center py-16 px-4">
               <div className="relative mx-auto h-40 w-40 text-muted-foreground">

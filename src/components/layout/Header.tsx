@@ -7,7 +7,7 @@ export default function Header() {
       <div className="container flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2">
           <Image
-            src={`/logo.png`}
+            src={`/logo.png?v=1`}
             alt="Grocer Kids logo"
             width={180}
             height={48} 

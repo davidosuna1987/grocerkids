@@ -7,7 +7,7 @@ import ProductSearchForm from '@/components/shopping/ProductSearchForm';
 import ProductGrid from '@/components/shopping/ProductGrid';
 import UploadListDialog from '@/components/shopping/UploadListDialog';
 import { Button } from '@/components/ui/button';
-import { Trash2, List, Plus, Grid, AlertTriangle } from 'lucide-react';
+import { Trash2, List, Grid, AlertTriangle, Camera } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
 import { Confetti } from '@/components/effects/Confetti';
@@ -191,7 +191,7 @@ export default function Home() {
             onClick={() => setUploadDialogOpen(true)}
           >
             <div className="bg-primary p-3 rounded-full text-primary-foreground -mt-8 shadow-lg shadow-primary/30">
-              <Plus className="size-10" />
+              <Camera className="size-10" />
             </div>
           </Button>
 

@@ -41,9 +41,9 @@ export default function ProductSearchForm({ addProduct }: ProductSearchFormProps
         aria-label="Add product"
       >
         {isAdding ? (
-          <Loader2 className="h-5 w-5 animate-spin" />
+          <Loader2 className="h-6 w-6 animate-spin text-primary-foreground" />
         ) : (
-          <PlusCircle className="h-5 w-5" />
+          <PlusCircle className="h-6 w-6 text-primary-foreground" />
         )}
       </Button>
     </form>

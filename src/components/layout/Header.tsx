@@ -1,11 +1,7 @@
 import { ShoppingCart } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { ThemeToggle } from '../theme-toggle';
 
-type HeaderProps = {
-  children?: ReactNode;
-};
-
-export default function Header({ children }: HeaderProps) {
+export default function Header() {
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
@@ -15,7 +11,7 @@ export default function Header({ children }: HeaderProps) {
             GrocerKids
           </h1>
         </div>
-        {children}
+        <ThemeToggle />
       </div>
     </header>
   );

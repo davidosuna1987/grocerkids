@@ -136,7 +136,7 @@ export default function Home() {
         <nav className="flex justify-around items-center h-20 px-4 max-w-2xl mx-auto">
           <Button
             variant="ghost"
-            className="flex flex-col items-center gap-1 text-muted-foreground h-auto"
+            className="flex flex-col items-center gap-1 text-muted-foreground h-auto hover:bg-transparent hover:text-primary"
             onClick={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')}
           >
             {viewMode === 'list' ? (
@@ -151,7 +151,7 @@ export default function Home() {
 
           <Button
             variant="ghost"
-            className="text-card-foreground h-auto"
+            className="text-card-foreground h-auto hover:bg-transparent"
             onClick={() => setUploadDialogOpen(true)}
           >
             <div className="bg-primary p-3 rounded-full text-primary-foreground -mt-8 shadow-lg shadow-primary/30">
@@ -161,7 +161,7 @@ export default function Home() {
 
           <Button
             variant="ghost"
-            className="flex flex-col items-center gap-1 text-muted-foreground h-auto"
+            className="flex flex-col items-center gap-1 text-muted-foreground h-auto hover:bg-transparent hover:text-primary"
             onClick={clearList}
             disabled={products.length === 0}
           >

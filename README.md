@@ -1,12 +1,12 @@
-# GrocerKids: ¡La Aventura de Hacer la Compra! 🛒✨
+# Grocer Kids: ¡La Aventura de Hacer la Compra! 🛒✨
 
-¡Convierte la compra en un juego divertido para toda la familia! **GrocerKids** es una lista de la compra visual e interactiva diseñada para que los más pequeños participen y aprendan mientras os preparáis para ir al supermercado.
+¡Convierte la compra en un juego divertido para toda la familia! **Grocer Kids** es una lista de la compra visual e interactiva diseñada para que los más pequeños participen y aprendan mientras os preparáis para ir al supermercado.
 
 ---
 
 ### ¡Hola, Papás y Mamás! 👋
 
-¿Cansados de las compras aburridas? GrocerKids os ayuda a involucrar a vuestros hijos de una manera educativa y entretenida.
+¿Cansados de las compras aburridas? Grocer Kids os ayuda a involucrar a vuestros hijos de una manera educativa y entretenida.
 
 - **Menos estrés, más diversión:** Transformad una tarea rutinaria en un momento de conexión familiar.
 - **Fomenta la autonomía:** Dejad que vuestros peques se sientan responsables y orgullosos de ayudar.
@@ -17,7 +17,7 @@
 
 ### ¡Hola, Pequeños Exploradores! 🕵️‍♀️🍌
 
-¡Prepárate para la misión más deliciosa! Con GrocerKids, ayudar a hacer la compra es súper fácil y divertido.
+¡Prepárate para la misión más deliciosa! Con Grocer Kids, ayudar a hacer la compra es súper fácil y divertido.
 
 - **Añade tus cosas favoritas:** Escribe el nombre de lo que quieras y ¡magia! aparecerá en la lista con un dibujo.
 - **¡Hazle una foto a la lista de papel!** Si mamá o papá la escribieron, solo tienes que hacerle una foto y la app sabrá qué hay que comprar.

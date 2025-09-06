@@ -5,6 +5,23 @@ import { useState, useEffect, useCallback } from 'react';
 
 const STORAGE_KEY = 'grocerkids-list';
 
+async function getProductImage(name: string): Promise<string> {
+  const fallbackImage = `https://picsum.photos/400/400?random=${crypto.randomUUID()}`;
+  try {
+    const response = await fetch(`https://api.wikimedia.org/core/v1/commons/search/title?q=${encodeURIComponent(name)}`);
+    if (!response.ok) {
+      console.error('Wikimedia API request failed');
+      return fallbackImage;
+    }
+    const data = await response.json();
+    const firstResultWithImage = data?.pages?.find((p: any) => p.thumbnail?.url);
+    return firstResultWithImage?.thumbnail?.url || fallbackImage;
+  } catch (error) {
+    console.error('Failed to fetch product image', error);
+    return fallbackImage;
+  }
+}
+
 export function useShoppingList() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -34,31 +51,41 @@ export function useShoppingList() {
     }
   }, [products, isLoading]);
 
-  const addProduct = useCallback((name: string, image?: string) => {
+  const addProduct = useCallback(async (name: string, image?: string) => {
     if (!name.trim()) return;
+
+    const imageUrl = image || await getProductImage(name.trim());
 
     const newProduct: Product = {
       id: crypto.randomUUID(),
       name: name.trim(),
-      image: image || `https://picsum.photos/400/400?random=${crypto.randomUUID()}`,
+      image: imageUrl,
       bought: false,
     };
     setProducts((prev) => [newProduct, ...prev]);
   }, []);
 
-  const addMultipleProducts = useCallback((names: string[]) => {
-    const newProducts: Product[] = names
-      .filter(name => name && name.trim())
-      .map(name => ({
-        id: crypto.randomUUID(),
-        name: name.trim(),
-        image: `https://picsum.photos/400/400?random=${crypto.randomUUID()}`,
-        bought: false,
-      }));
+  const addMultipleProducts = useCallback(async (names: string[]) => {
+    const validNames = names.filter(name => name && name.trim());
+    if (validNames.length === 0) return;
+
+    setIsLoading(true);
+    const newProducts: Product[] = await Promise.all(
+      validNames.map(async (name) => {
+        const imageUrl = await getProductImage(name.trim());
+        return {
+          id: crypto.randomUUID(),
+          name: name.trim(),
+          image: imageUrl,
+          bought: false,
+        };
+      })
+    );
     
     if (newProducts.length > 0) {
       setProducts(prev => [...newProducts, ...prev]);
     }
+    setIsLoading(false);
   }, []);
 
   const toggleProductBought = useCallback((id: string) => {

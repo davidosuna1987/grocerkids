@@ -57,15 +57,18 @@ export default function UploadListDialog({ addMultipleProducts }: UploadListDial
         title: 'Oh no! Something went wrong.',
         description: result.error,
       });
+      setIsPending(false);
     } else if (result.data) {
-      addMultipleProducts(result.data);
+      handleClose();
+      await (addMultipleProducts as (names: string[]) => Promise<void>)(result.data);
       toast({
         title: 'Success!',
         description: `Added ${result.data.length} items to your list.`,
       });
-      handleClose();
+      setIsPending(false);
+    } else {
+        setIsPending(false);
     }
-    setIsPending(false);
   };
 
   const handleClose = () => {
@@ -83,7 +86,7 @@ export default function UploadListDialog({ addMultipleProducts }: UploadListDial
           Upload List
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]" onInteractOutside={(e) => e.preventDefault()} onCloseAutoFocus={handleClose}>
+      <DialogContent className="sm:max-w-[425px]" onInteractOutside={(e) => { if(!isPending) e.preventDefault()}} onCloseAutoFocus={handleClose}>
         <DialogHeader>
           <DialogTitle>Upload a Shopping List</DialogTitle>
           <DialogDescription>
@@ -106,7 +109,7 @@ export default function UploadListDialog({ addMultipleProducts }: UploadListDial
                 <p className="text-xs text-muted-foreground">PNG, JPG, or WEBP</p>
               </div>
             )}
-            <Input id="picture-upload" type="file" className="hidden" accept="image/*" onChange={handleFileChange} ref={fileInputRef} />
+            <Input id="picture-upload" type="file" className="hidden" accept="image/*" onChange={handleFileChange} ref={fileInputRef} disabled={isPending}/>
           </Label>
         </div>
         <DialogFooter>

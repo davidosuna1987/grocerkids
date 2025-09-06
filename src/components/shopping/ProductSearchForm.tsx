@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
+import { Loader2, PlusCircle } from 'lucide-react';
 
 type ProductSearchFormProps = {
   addProduct: (name: string, image?: string) => void;
@@ -11,12 +11,15 @@ type ProductSearchFormProps = {
 
 export default function ProductSearchForm({ addProduct }: ProductSearchFormProps) {
   const [itemName, setItemName] = useState('');
+  const [isAdding, setIsAdding] = useState(false);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (itemName.trim()) {
-      addProduct(itemName.trim());
+    if (itemName.trim() && !isAdding) {
+      setIsAdding(true);
+      await (addProduct as (name: string) => Promise<void>)(itemName.trim());
       setItemName('');
+      setIsAdding(false);
     }
   };
 
@@ -29,14 +32,19 @@ export default function ProductSearchForm({ addProduct }: ProductSearchFormProps
         onChange={(e) => setItemName(e.target.value)}
         className="h-12 flex-grow text-lg shadow-inner"
         aria-label="Product name"
+        disabled={isAdding}
       />
       <Button
         type="submit"
         size="lg"
         className="h-12 bg-accent hover:bg-accent/90 text-accent-foreground"
-        disabled={!itemName.trim()}
+        disabled={!itemName.trim() || isAdding}
       >
-        <PlusCircle className="mr-2 h-5 w-5" />
+        {isAdding ? (
+          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+        ) : (
+          <PlusCircle className="mr-2 h-5 w-5" />
+        )}
         <span className="font-bold">Add</span>
       </Button>
     </form>

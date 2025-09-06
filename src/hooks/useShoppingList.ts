@@ -4,20 +4,40 @@ import type { Product } from '@/types';
 import { useState, useEffect, useCallback } from 'react';
 
 const STORAGE_KEY = 'grocerkids-list';
+const PEXELS_API_KEY = "mFJQuartb3tcHMQ03Bzl703zH68DCsiaoia479Ej6QZJGsVf4p9ChE2Z";
+
 
 async function getProductImage(name: string): Promise<string> {
   const fallbackImage = `https://picsum.photos/400/400?random=${crypto.randomUUID()}`;
+  if (!PEXELS_API_KEY) {
+    console.error('Pexels API key is missing.');
+    return fallbackImage;
+  }
   try {
-    const response = await fetch(`https://api.wikimedia.org/core/v1/commons/search/title?q=${encodeURIComponent(name)}`);
+    const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(
+      name
+    )}&locale=es-ES&per_page=1`;
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: PEXELS_API_KEY,
+      },
+    });
+
     if (!response.ok) {
-      console.error('Wikimedia API request failed');
+      console.error(`Error searching for image: ${response.status}`);
       return fallbackImage;
     }
+
     const data = await response.json();
-    const firstResultWithImage = data?.pages?.find((p: any) => p.thumbnail?.url);
-    return firstResultWithImage?.thumbnail?.url || fallbackImage;
+
+    if (data.photos.length > 0) {
+      return data.photos[0].src.large;
+    } else {
+      return fallbackImage;
+    }
   } catch (error) {
-    console.error('Failed to fetch product image', error);
+    console.error('Failed to fetch product image from Pexels', error);
     return fallbackImage;
   }
 }
@@ -37,7 +57,7 @@ export function useShoppingList() {
       console.error('Failed to load products from localStorage', error);
     }
     // Artificial delay to show loading state
-    setTimeout(() => setIsLoading(false), 500); 
+    setTimeout(() => setIsLoading(false), 500);
   }, []);
 
   // Save to localStorage whenever products change

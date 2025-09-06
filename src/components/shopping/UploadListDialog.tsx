@@ -2,13 +2,13 @@
 
 import { useState, useRef, type ChangeEvent } from 'react';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+} from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -72,28 +72,31 @@ export default function UploadListDialog({ addMultipleProducts, open, onOpenChan
   };
 
   const handleClose = () => {
-    setPreview(null);
-    setFile(null);
-    if(fileInputRef.current) fileInputRef.current.value = "";
     onOpenChange(false);
   };
+  
+  const handleExited = () => {
+      setPreview(null);
+      setFile(null);
+      if(fileInputRef.current) fileInputRef.current.value = "";
+  }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]" onInteractOutside={(e) => { if(!isPending) e.preventDefault()}} onCloseAutoFocus={handleClose}>
-        <DialogHeader>
-          <DialogTitle>Subir una lista de la compra</DialogTitle>
-          <DialogDescription>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="bottom" className="rounded-t-2xl" onTransitionEnd={!open ? handleExited : undefined}>
+        <SheetHeader className='text-center'>
+          <SheetTitle>Subir una lista de la compra</SheetTitle>
+          <SheetDescription>
             ¡Haz una foto de tu lista manuscrita y nosotros añadiremos los productos por ti!
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
+          </SheetDescription>
+        </SheetHeader>
+        <div className="py-4">
           <Label
             htmlFor="picture-upload"
             className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted"
           >
             {preview ? (
-              <Image src={preview} alt="Vista previa de la lista" width={150} height={150} className="object-contain h-full w-full" />
+              <Image src={preview} alt="Vista previa de la lista" width={150} height={150} className="object-contain h-full w-full p-2" />
             ) : (
               <div className="flex flex-col items-center justify-center pt-5 pb-6">
                 <FileUp className="w-8 h-8 mb-4 text-muted-foreground" />
@@ -106,7 +109,7 @@ export default function UploadListDialog({ addMultipleProducts, open, onOpenChan
             <Input id="picture-upload" type="file" className="hidden" accept="image/*" onChange={handleFileChange} ref={fileInputRef} disabled={isPending}/>
           </Label>
         </div>
-        <DialogFooter>
+        <SheetFooter className="flex-col-reverse sm:flex-col-reverse gap-2">
           <Button variant="outline" onClick={handleClose} disabled={isPending}>
             Cancelar
           </Button>
@@ -120,8 +123,8 @@ export default function UploadListDialog({ addMultipleProducts, open, onOpenChan
               'Generar Lista'
             )}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 }

@@ -13,7 +13,7 @@ export async function generateListFromImage(formData: FormData) {
   const validation = imageSchema.safeParse({ photoDataUri });
 
   if (!validation.success) {
-    return { error: 'Invalid image data. Please upload a valid image file.' };
+    return { error: 'Datos de imagen no válidos. Por favor, sube un archivo de imagen válido.' };
   }
 
   try {
@@ -21,9 +21,9 @@ export async function generateListFromImage(formData: FormData) {
     if (result && result.productNames) {
       return { data: result.productNames };
     }
-    return { error: 'Could not extract any products from the image. Try a clearer picture.' };
+    return { error: 'No se pudieron extraer productos de la imagen. Prueba con una imagen más clara.' };
   } catch (error) {
-    console.error('AI conversion failed:', error);
-    return { error: 'An unexpected error occurred. Please try again later.' };
+    console.error('La conversión con IA ha fallado:', error);
+    return { error: 'Ha ocurrido un error inesperado. Por favor, inténtalo de nuevo más tarde.' };
   }
 }

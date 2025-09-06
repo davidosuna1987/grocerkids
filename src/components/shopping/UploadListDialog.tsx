@@ -54,7 +54,7 @@ export default function UploadListDialog({ addMultipleProducts, open, onOpenChan
     if (result.error) {
       toast({
         variant: 'destructive',
-        title: 'Oh no! Something went wrong.',
+        title: '¡Oh, no! Algo salió mal.',
         description: result.error,
       });
       setIsPending(false);
@@ -62,8 +62,8 @@ export default function UploadListDialog({ addMultipleProducts, open, onOpenChan
       handleClose();
       await (addMultipleProducts as (names: string[]) => Promise<void>)(result.data);
       toast({
-        title: 'Success!',
-        description: `Added ${result.data.length} items to your list.`,
+        title: '¡Éxito!',
+        description: `Se han añadido ${result.data.length} productos a tu lista.`,
       });
       setIsPending(false);
     } else {
@@ -82,9 +82,9 @@ export default function UploadListDialog({ addMultipleProducts, open, onOpenChan
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]" onInteractOutside={(e) => { if(!isPending) e.preventDefault()}} onCloseAutoFocus={handleClose}>
         <DialogHeader>
-          <DialogTitle>Upload a Shopping List</DialogTitle>
+          <DialogTitle>Subir una lista de la compra</DialogTitle>
           <DialogDescription>
-            Take a picture of your handwritten list and we&apos;ll add the items for you!
+            ¡Haz una foto de tu lista manuscrita y nosotros añadiremos los productos por ti!
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -93,14 +93,14 @@ export default function UploadListDialog({ addMultipleProducts, open, onOpenChan
             className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted"
           >
             {preview ? (
-              <Image src={preview} alt="List preview" width={150} height={150} className="object-contain h-full w-full" />
+              <Image src={preview} alt="Vista previa de la lista" width={150} height={150} className="object-contain h-full w-full" />
             ) : (
               <div className="flex flex-col items-center justify-center pt-5 pb-6">
                 <FileUp className="w-8 h-8 mb-4 text-muted-foreground" />
                 <p className="mb-2 text-sm text-muted-foreground">
-                  <span className="font-semibold">Click to upload</span> or drag and drop
+                  <span className="font-semibold">Haz clic para subir</span> o arrastra y suelta
                 </p>
-                <p className="text-xs text-muted-foreground">PNG, JPG, or WEBP</p>
+                <p className="text-xs text-muted-foreground">PNG, JPG o WEBP</p>
               </div>
             )}
             <Input id="picture-upload" type="file" className="hidden" accept="image/*" onChange={handleFileChange} ref={fileInputRef} disabled={isPending}/>
@@ -108,16 +108,16 @@ export default function UploadListDialog({ addMultipleProducts, open, onOpenChan
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={handleClose} disabled={isPending}>
-            Cancel
+            Cancelar
           </Button>
           <Button onClick={handleGenerate} disabled={!preview || isPending}>
             {isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generating...
+                Generando...
               </>
             ) : (
-              'Generate List'
+              'Generar Lista'
             )}
           </Button>
         </DialogFooter>

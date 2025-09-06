@@ -1,11 +1,11 @@
 'use server';
 
 /**
- * @fileOverview Converts an image of a shopping list into a list of product names.
+ * @fileOverview Convierte una imagen de una lista de la compra en una lista de nombres de productos.
  *
- * - imageToListConversion - A function that handles the image to list conversion process.
- * - ImageToListConversionInput - The input type for the imageToListConversion function.
- * - ImageToListConversionOutput - The return type for the imageToListConversion function.
+ * - imageToListConversion - Una función que gestiona el proceso de conversión de imagen a lista.
+ * - ImageToListConversionInput - El tipo de entrada para la función imageToListConversion.
+ * - ImageToListConversionOutput - El tipo de retorno para la función imageToListConversion.
  */
 
 import {ai} from '@/ai/genkit';
@@ -15,7 +15,7 @@ const ImageToListConversionInputSchema = z.object({
   photoDataUri: z
     .string()
     .describe(
-      "A photo of a handwritten shopping list, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+      "Una foto de una lista de la compra manuscrita, como un URI de datos que debe incluir un tipo MIME y usar codificación Base64. Formato esperado: 'data:<mimetype>;base64,<encoded_data>'."
     ),
 });
 export type ImageToListConversionInput = z.infer<
@@ -25,7 +25,7 @@ export type ImageToListConversionInput = z.infer<
 const ImageToListConversionOutputSchema = z.object({
   productNames: z
     .array(z.string())
-    .describe('An array of product names identified from the image.'),
+    .describe('Un array de nombres de productos identificados en la imagen.'),
 });
 export type ImageToListConversionOutput = z.infer<
   typeof ImageToListConversionOutputSchema
@@ -40,12 +40,12 @@ export async function imageToListConversion(
 const ocrTool = ai.defineTool(
   {
     name: 'ocrTool',
-    description: 'Extracts text from an image of a shopping list using OCR.',
+    description: 'Extrae texto de una imagen de una lista de la compra usando OCR.',
     inputSchema: z.object({
       photoDataUri: z
         .string()
         .describe(
-          "A photo of a handwritten shopping list, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+          "Una foto de una lista de la compra manuscrita, como un URI de datos que debe incluir un tipo MIME y usar codificación Base64. Formato esperado: 'data:<mimetype>;base64,<encoded_data>'."
         ),
     }),
     outputSchema: z.string(),
@@ -66,14 +66,14 @@ const extractProductNamesPrompt = ai.definePrompt({
   tools: [ocrTool],
   input: {schema: ImageToListConversionInputSchema},
   output: {schema: ImageToListConversionOutputSchema},
-  prompt: `You are a helpful assistant designed to extract product names from a shopping list.
+  prompt: `Eres un asistente útil diseñado para extraer nombres de productos de una lista de la compra.
 
-  First, use the ocrTool to extract the text from the image provided by the user.
-  Then, extract the product names from the extracted text.
+  Primero, utiliza la herramienta ocrTool para extraer el texto de la imagen proporcionada por el usuario.
+  Luego, extrae los nombres de los productos del texto extraído.
 
-  Here is the image of the shopping list: {{media url=photoDataUri}}
+  Aquí tienes la imagen de la lista de la compra: {{media url=photoDataUri}}
 
-  Return the product names as an array of strings.
+  Devuelve los nombres de los productos como un array de strings.
   `,
 });
 

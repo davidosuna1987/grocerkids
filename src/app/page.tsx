@@ -154,18 +154,17 @@ export default function Home() {
               <div className="relative mx-auto h-40 w-40 text-muted-foreground">
                 <Image
                   src="https://picsum.photos/200/200"
-                  alt="Empty grocery basket"
+                  alt="Cesta de la compra vacía"
                   data-ai-hint="grocery basket"
                   layout="fill"
                   className="opacity-50 rounded-full"
                 />
               </div>
               <h2 className="mt-6 text-2xl font-headline font-semibold text-foreground">
-                Your List is Empty!
+                ¡Tu lista está vacía!
               </h2>
               <p className="mt-2 text-muted-foreground">
-                Add items using the search bar above or upload a photo of your
-                list.
+                Añade productos usando el buscador o sube una foto de tu lista.
               </p>
             </div>
           )}

@@ -6,7 +6,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
   title: 'GrocerKids',
-  description: 'A fun, visual shopping list for kids and parents.',
+  description: 'Una lista de la compra divertida y visual para niños y padres.',
 };
 
 export default function RootLayout({

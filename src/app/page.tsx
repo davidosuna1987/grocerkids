@@ -176,7 +176,7 @@ export default function Home() {
         <nav className="flex justify-around items-center h-20 px-4 max-w-2xl mx-auto">
           <Button
             variant="ghost"
-            className="flex flex-col items-center gap-1 text-muted-foreground h-auto hover:bg-transparent hover:text-primary"
+            className="flex flex-col items-center text-muted-foreground h-auto hover:bg-transparent [&:hover>span]:text-primary [&:hover>svg]:text-primary"
             onClick={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')}
           >
             {viewMode === 'list' ? (
@@ -184,9 +184,6 @@ export default function Home() {
             ) : (
               <List className="size-7" />
             )}
-            <span className="text-xs font-semibold">
-              {viewMode === 'list' ? 'Grid' : 'List'}
-            </span>
           </Button>
 
           <Button
@@ -201,12 +198,11 @@ export default function Home() {
 
           <Button
             variant="ghost"
-            className="flex flex-col items-center gap-1 text-muted-foreground h-auto hover:bg-transparent hover:text-primary"
+            className="flex flex-col items-center text-muted-foreground h-auto hover:bg-transparent [&:hover>span]:text-primary [&:hover>svg]:text-primary"
             onClick={() => setClearListSheetOpen(true)}
             disabled={products.length === 0}
           >
             <Trash2 className="size-7" />
-            <span className="text-xs font-semibold">Clear</span>
           </Button>
         </nav>
       </footer>

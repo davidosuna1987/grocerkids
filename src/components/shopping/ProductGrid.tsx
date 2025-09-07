@@ -3,6 +3,7 @@
 import type { Product } from '@/types';
 import ProductCard from './ProductCard';
 import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type ProductGridProps = {
   products: Product[];
@@ -18,21 +19,32 @@ export default function ProductGrid({ products, onToggleBought, onDelete, viewMo
   });
 
   return (
-    <div
+    <motion.div
+      layout
       className={cn({
         'space-y-3': viewMode === 'list',
         'grid grid-cols-2 gap-4': viewMode === 'grid',
       })}
     >
-      {sortedProducts.map((product) => (
-        <ProductCard
-          key={product.id}
-          product={product}
-          onToggleBought={onToggleBought}
-          onDelete={onDelete}
-          viewMode={viewMode}
-        />
-      ))}
-    </div>
+      <AnimatePresence>
+        {sortedProducts.map((product) => (
+          <motion.div
+            key={product.id}
+            layout
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.3 }}
+          >
+            <ProductCard
+              product={product}
+              onToggleBought={onToggleBought}
+              onDelete={onDelete}
+              viewMode={viewMode}
+            />
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </motion.div>
   );
 }

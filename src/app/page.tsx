@@ -27,10 +27,13 @@ import {
   SheetDescription,
   SheetFooter,
 } from '@/components/ui/sheet';
+import SettingsSheet from '@/components/settings/SettingsSheet';
+import { useSettings } from '@/hooks/useSettings';
 
 type ViewMode = 'list' | 'grid';
 
 export default function Home() {
+  const { provider } = useSettings();
   const {
     products,
     isLoading,
@@ -45,6 +48,7 @@ export default function Home() {
   const [isClearListSheetOpen, setClearListSheetOpen] = React.useState(false);
   const [isCelebrationSheetOpen, setCelebrationSheetOpen] =
     React.useState(false);
+  const [isSettingsSheetOpen, setSettingsSheetOpen] = React.useState(false);
 
   const allProductsBought =
     products.length > 0 && products.every(p => p.bought);
@@ -74,6 +78,10 @@ export default function Home() {
         open={isUploadDialogOpen}
         onOpenChange={setUploadDialogOpen}
         addMultipleProducts={addMultipleProducts}
+      />
+      <SettingsSheet
+        open={isSettingsSheetOpen}
+        onOpenChange={setSettingsSheetOpen}
       />
       <Sheet open={isClearListSheetOpen} onOpenChange={setClearListSheetOpen}>
         <SheetContent side="bottom" className="rounded-t-2xl">
@@ -125,7 +133,7 @@ export default function Home() {
         </SheetContent>
       </Sheet>
 
-      <Header />
+      <Header onSettingsClick={() => setSettingsSheetOpen(true)} />
 
       <main className="flex-1 container mx-auto px-4 py-6 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl">

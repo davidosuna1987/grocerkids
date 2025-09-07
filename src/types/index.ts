@@ -4,3 +4,9 @@ export interface Product {
   image: string;
   bought: boolean;
 }
+
+export type ImageProvider = "pexels" | "pixabay";
+
+export interface AppSettings {
+  provider: ImageProvider;
+}

@@ -34,6 +34,8 @@ export function useFoodImage() {
         url = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(
           food
         )}&lang=es&image_type=photo&per_page=3`;
+      } else {
+        return fallbackImage;
       }
 
       const response = await fetch(url, { headers });
@@ -48,6 +50,7 @@ export function useFoodImage() {
       } else if (provider === "pixabay" && data.hits.length > 0) {
         return data.hits[0].largeImageURL;
       } else {
+        console.log(`No results found on ${provider} for "${food}", using fallback.`);
         return fallbackImage;
       }
     } catch (err: any) {

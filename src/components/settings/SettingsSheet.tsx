@@ -43,7 +43,7 @@ export default function SettingsSheet({
           </SheetDescription>
         </SheetHeader>
         <div className="py-6 space-y-6 max-w-sm mx-auto">
-            <div className="grid grid-cols-3 items-center gap-4">
+            <div className="flex flex-col gap-1">
                  <Label htmlFor="image-provider" className="col-span-1">Proveedor de imágenes</Label>
                  <Select
                     value={provider}

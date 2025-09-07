@@ -135,11 +135,8 @@ export default function Home() {
 
       <Header onSettingsClick={() => setSettingsSheetOpen(true)} />
 
-      <main className="flex-1 container mx-auto px-4 py-6 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl">
-          <ProductSearchForm addProduct={addProduct} />
-        </div>
-        <div className="mt-8">
+      <main className="flex flex-col flex-1 container mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        <div className="flex-1">
           {isLoading ? (
             <div
               className={
@@ -171,7 +168,7 @@ export default function Home() {
             />
           ) : (
             <div className="text-center py-16 px-4">
-               <div className="mx-auto flex items-center justify-center size-32 rounded-full bg-secondary/50 text-secondary-foreground">
+               <div className="mx-auto flex items-center justify-center size-32 rounded-full bg-primary/20 text-primary">
                   <ShoppingCart className="size-16" />
                 </div>
               <h2 className="mt-6 text-2xl font-headline font-semibold text-foreground">
@@ -183,6 +180,9 @@ export default function Home() {
             </div>
           )}
         </div>
+        <div className="w-full max-w-2xl mb-8">
+          <ProductSearchForm addProduct={addProduct} />
+        </div>
       </main>
 
       <footer className="sticky bottom-0 bg-card shadow-[0_-2px_5px_rgba(0,0,0,0.05)] rounded-t-2xl">
@@ -193,9 +193,9 @@ export default function Home() {
             onClick={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')}
           >
             {viewMode === 'list' ? (
-              <Grid className="size-7" />
+              <Grid className="!size-7" />
             ) : (
-              <List className="size-7" />
+              <List className="!size-7" />
             )}
           </Button>
 
@@ -204,8 +204,8 @@ export default function Home() {
             className="text-card-foreground h-auto hover:bg-transparent"
             onClick={() => setUploadDialogOpen(true)}
           >
-            <div className="bg-primary p-3 rounded-full text-primary-foreground -mt-8 shadow-lg shadow-primary/30">
-              <Camera className="size-10" />
+            <div className="flex justify-center items-center size-24 bg-primary rounded-full text-primary-foreground -mt-8 shadow-lg shadow-primary/30">
+              <Camera className='!size-10' />
             </div>
           </Button>
 
@@ -215,7 +215,7 @@ export default function Home() {
             onClick={() => setClearListSheetOpen(true)}
             disabled={products.length === 0}
           >
-            <Trash2 className="size-7" />
+            <Trash2 className='!size-7' />
           </Button>
         </nav>
       </footer>

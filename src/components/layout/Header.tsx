@@ -29,7 +29,7 @@ export default function Header({ onSettingsClick }: HeaderProps) {
             className="p-0 hover:bg-transparent text-foreground/70 hover:text-primary"
             onClick={onSettingsClick}
           >
-            <Settings className="h-6 w-6" />
+            <Settings className="!size-6" />
             <span className="sr-only">Ajustes</span>
           </Button>
         </div>

@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Loader2, PlusCircle } from 'lucide-react';
+import { Loader2, Plus } from 'lucide-react';
 
 type ProductSearchFormProps = {
   addProduct: (name: string, image?: string) => void;
@@ -36,14 +36,14 @@ export default function ProductSearchForm({ addProduct }: ProductSearchFormProps
       />
       <Button
         type="submit"
-        className="h-12 bg-primary hover:bg-primary/90 rounded-l-none px-6"
+        className="h-12 bg-primary hover:bg-primary/90 rounded-l-none px-4"
         disabled={!itemName.trim() || isAdding}
         aria-label="Añadir producto"
       >
         {isAdding ? (
-          <Loader2 className="h-7 w-7 animate-spin text-primary-foreground" />
+          <Loader2 className="!size-6 animate-spin text-primary-foreground" />
         ) : (
-          <PlusCircle className="h-7 w-7 text-primary-foreground" />
+          <Plus className="!size-6 text-primary-foreground" />
         )}
       </Button>
     </form>

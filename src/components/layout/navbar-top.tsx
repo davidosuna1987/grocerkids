@@ -3,11 +3,11 @@ import { ThemeToggle } from '../theme-toggle';
 import { Button } from '../ui/button';
 import { Settings } from 'lucide-react';
 
-type HeaderProps = {
+type NavbarTopProps = {
   onSettingsClick: () => void;
 };
 
-export default function Header({ onSettingsClick }: HeaderProps) {
+export default function NavbarTop({ onSettingsClick }: NavbarTopProps) {
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">

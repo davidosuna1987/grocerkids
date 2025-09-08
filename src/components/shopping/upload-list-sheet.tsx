@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/tabs';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
-type UploadListDialogProps = {
+type UploadListSheetProps = {
   addMultipleProducts: (names: string[]) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -32,11 +32,11 @@ type UploadListDialogProps = {
 
 type ImageSource = 'upload' | 'camera';
 
-export default function UploadListDialog({
+export default function UploadListSheet({
   addMultipleProducts,
   open,
   onOpenChange,
-}: UploadListDialogProps) {
+}: UploadListSheetProps) {
   const [isPending, setIsPending] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [imageSource, setImageSource] = useState<ImageSource | null>(null);

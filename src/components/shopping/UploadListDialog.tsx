@@ -292,9 +292,9 @@ export default function UploadListDialog({
       >
         <SheetHeader className="text-center">
           <SheetTitle>Subir una lista de la compra</SheetTitle>
-          <SheetDescription className='mb-4'>
-            ¡Haz una foto de tu lista manuscrita y nosotros añadiremos los
-            productos por ti!
+          <SheetDescription>
+          <span className='inline-block mb-4'>¡Haz una foto de tu lista manuscrita y nosotros añadiremos los
+            productos por ti!</span>
           </SheetDescription>
         </SheetHeader>
         

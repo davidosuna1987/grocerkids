@@ -135,8 +135,11 @@ export default function Home() {
 
       <Header onSettingsClick={() => setSettingsSheetOpen(true)} />
 
-      <main className="flex flex-col flex-1 container mx-auto px-4 py-6 sm:px-6 lg:px-8">
-        <div className="flex-1">
+      <main className="flex-1 container mx-auto p-4 sm:p-6 lg:p-8">
+        <div className="w-full max-w-2xl mb-4">
+          <ProductSearchForm addProduct={addProduct} />
+        </div>
+        <div>
           {isLoading ? (
             <div
               className={
@@ -179,9 +182,6 @@ export default function Home() {
               </p>
             </div>
           )}
-        </div>
-        <div className="w-full max-w-2xl mb-8">
-          <ProductSearchForm addProduct={addProduct} />
         </div>
       </main>
 

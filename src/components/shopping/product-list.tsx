@@ -2,7 +2,7 @@
 
 import type { Product } from '@/types';
 import ProductListItem from './product-list-item';
-import { useSettings } from '@/contexts/SettingsContext';
+import { useSettings } from '@/contexts/settings-context';
 
 type ProductListProps = {
   products: Product[];

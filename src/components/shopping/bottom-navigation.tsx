@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Trash2, List, Grid, Camera } from 'lucide-react';
-import { useSettings } from '@/contexts/SettingsContext';
+import { useSettings } from '@/contexts/settings-context';
 import { VIEW_TYPES_MAP } from '@/types';
 
 type BottomNavigationProps = {

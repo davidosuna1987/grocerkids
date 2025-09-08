@@ -2,7 +2,7 @@
 
 import { IMAGE_PROVIDERS_MAP, ImageProvider } from "@/types";
 import { useCallback } from "react";
-import { useSettings } from "@/contexts/SettingsContext";
+import { useSettings } from "@/contexts/settings-context";
 
 const PEXELS_API_KEY = process.env.NEXT_PUBLIC_PEXELS_API_KEY;
 const PIXABAY_API_KEY = process.env.NEXT_PUBLIC_PIXABAY_API_KEY;
@@ -22,7 +22,7 @@ export function useFoodImage() {
 
       if (activeProvider === IMAGE_PROVIDERS_MAP.pexels) {
         if (!PEXELS_API_KEY) {
-          console.error("Pexels API key is missing.");
+          console.error("Pexels API key is missing. Make sure it's defined in .env as NEXT_PUBLIC_PEXELS_API_KEY");
           return fallbackImage;
         }
         url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(

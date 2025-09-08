@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from '@/components/theme-provider';
-import { SettingsProvider } from '@/contexts/SettingsContext';
+import { SettingsProvider } from '@/contexts/settings-context';
 
 export const metadata: Metadata = {
   title: 'Grocer Kids',
@@ -24,17 +24,17 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Grocer Kids" />
       </head>
       <body className={cn("font-body antialiased", "min-h-screen bg-background")}>
-        <SettingsProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SettingsProvider>
             {children}
             <Toaster />
-          </ThemeProvider>
-        </SettingsProvider>
+          </SettingsProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

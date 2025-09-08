@@ -15,8 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useSettings } from '@/contexts/SettingsContext';
-import { IMAGE_PROVIDERS_MAP, VIEW_TYPES_MAP, type ImageProvider, type ViewType } from '@/types';
+import { useSettings } from '@/contexts/settings-context';
+import { IMAGE_PROVIDERS_MAP, VIEW_TYPES_MAP, THEMES_MAP, type ImageProvider, type ViewType, type Theme } from '@/types';
 
 type SettingsSheetProps = {
   open: boolean;
@@ -27,7 +27,7 @@ export default function SettingsSheet({
   open,
   onOpenChange,
 }: SettingsSheetProps) {
-  const { provider, viewType, setProvider, setViewType } = useSettings();
+  const { provider, viewType, theme, setProvider, setViewType, setTheme } = useSettings();
 
   const handleProviderChange = (value: ImageProvider) => {
     console.log("Selected provider:", value);
@@ -36,6 +36,10 @@ export default function SettingsSheet({
 
   const handleViewTypeChange = (value: ViewType) => {
     setViewType(value);
+  };
+
+  const handleThemeChange = (value: Theme) => {
+    setTheme(value);
   };
 
   return (
@@ -63,7 +67,7 @@ export default function SettingsSheet({
                     </SelectContent>
                  </Select>
             </div>
-            
+
             <div className="flex flex-col gap-2">
                  <Label htmlFor="view-type" className="col-span-1">Tipo de vista</Label>
                  <Select
@@ -76,6 +80,23 @@ export default function SettingsSheet({
                     <SelectContent>
                         <SelectItem value={VIEW_TYPES_MAP.list}>Lista</SelectItem>
                         <SelectItem value={VIEW_TYPES_MAP.grid}>Cuadrícula</SelectItem>
+                    </SelectContent>
+                 </Select>
+            </div>
+
+            <div className="flex flex-col gap-2">
+                 <Label htmlFor="theme" className="col-span-1">Tema de la app</Label>
+                 <Select
+                    value={theme}
+                    onValueChange={handleThemeChange}
+                 >
+                    <SelectTrigger id="theme" className="col-span-2">
+                        <SelectValue placeholder="Seleccionar tema" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value={THEMES_MAP.light}>Claro</SelectItem>
+                        <SelectItem value={THEMES_MAP.dark}>Oscuro</SelectItem>
+                        <SelectItem value={THEMES_MAP.system}>Sistema</SelectItem>
                     </SelectContent>
                  </Select>
             </div>

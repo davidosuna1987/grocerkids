@@ -2,7 +2,7 @@
 
 import type { Product } from '@/types';
 import { useState, useEffect, useCallback } from 'react';
-import { useFoodImage } from './useFoodImage';
+import { useFoodImage } from './use-food-image';
 
 const STORAGE_KEY = 'grocerkids-list';
 

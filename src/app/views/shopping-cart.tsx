@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useShoppingList } from '@/hooks/useShoppingList';
+import { useShoppingList } from '@/hooks/use-shopping-list';
 import ProductSearchForm from '@/components/shopping/product-search-form';
 import ProductList from '@/components/shopping/product-list';
 import UploadListSheet from '@/components/shopping/upload-list-sheet';
@@ -11,9 +11,9 @@ import EmptyState from '@/components/shopping/empty-state';
 import LoadingSkeleton from '@/components/shopping/loading-skeleton';
 import BottomNavigation from '@/components/shopping/bottom-navigation';
 import { Confetti } from '@/components/effects/Confetti';
-import { useConfetti } from '@/hooks/useConfetti';
+import { useConfetti } from '@/hooks/use-confetti';
 import SettingsSheet from '@/components/settings/SettingsSheet';
-import { useSettings } from '@/contexts/SettingsContext';
+import { useSettings } from '@/contexts/settings-context';
 import NavbarTop from '@/components/layout/navbar-top';
 
 export default function ShoppingCart() {

@@ -19,7 +19,16 @@ export const VIEW_TYPES_MAP = {
 export const VIEW_TYPES = Object.values(VIEW_TYPES_MAP);
 export type ViewType = typeof VIEW_TYPES[number];
 
+export const THEMES_MAP = {
+  light: 'light',
+  dark: 'dark',
+  system: 'system',
+} as const;
+export const THEMES = Object.values(THEMES_MAP);
+export type Theme = typeof THEMES[number];
+
 export interface AppSettings {
   provider: ImageProvider;
   viewType: ViewType;
+  theme: Theme;
 }

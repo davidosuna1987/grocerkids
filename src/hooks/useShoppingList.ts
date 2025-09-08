@@ -22,9 +22,11 @@ export function useShoppingList() {
       }
     } catch (error) {
       console.error('Failed to load products from localStorage', error);
+    } finally {
+      setIsLoading(false)
     }
     // Artificial delay to show loading state
-    setTimeout(() => setIsLoading(false), 500);
+    // setTimeout(() => setIsLoading(false), 500);
   }, []);
 
   // Save to localStorage whenever products change
@@ -68,7 +70,7 @@ export function useShoppingList() {
         };
       })
     );
-    
+
     if (newProducts.length > 0) {
       setProducts(prev => [...newProducts, ...prev]);
     }
@@ -90,6 +92,6 @@ export function useShoppingList() {
   const clearList = useCallback(() => {
     setProducts([]);
   }, []);
-  
+
   return { products, isLoading, addProduct, addMultipleProducts, toggleProductBought, deleteProduct, clearList };
 }

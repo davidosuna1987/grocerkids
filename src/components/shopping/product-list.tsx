@@ -2,24 +2,24 @@
 
 import type { Product } from '@/types';
 import ProductListItem from './product-list-item';
+import { useSettings } from '@/contexts/SettingsContext';
 
 type ProductListProps = {
   products: Product[];
   onToggleBought: (id: string) => void;
   onDelete: (id: string) => void;
-  viewMode: 'list' | 'grid';
 };
 
 export default function ProductList({
   products,
   onToggleBought,
   onDelete,
-  viewMode,
 }: ProductListProps) {
+  const { viewType } = useSettings();
   return (
     <div
       className={
-        viewMode === 'list'
+        viewType === 'list'
           ? 'space-y-3'
           : 'grid grid-cols-2 gap-4'
       }
@@ -30,7 +30,7 @@ export default function ProductList({
           product={product}
           onToggleBought={onToggleBought}
           onDelete={onDelete}
-          viewMode={viewMode}
+          viewMode={viewType}
         />
       ))}
     </div>

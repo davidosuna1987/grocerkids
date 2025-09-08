@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, useRef, type FormEvent } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Loader2, Plus } from 'lucide-react';
@@ -12,6 +12,7 @@ type ProductSearchFormProps = {
 export default function ProductSearchForm({ addProduct }: ProductSearchFormProps) {
   const [itemName, setItemName] = useState('');
   const [isAdding, setIsAdding] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -20,12 +21,15 @@ export default function ProductSearchForm({ addProduct }: ProductSearchFormProps
       await (addProduct as (name: string) => Promise<void>)(itemName.trim());
       setItemName('');
       setIsAdding(false);
+      // Refocus the input after adding the product
+      inputRef.current?.focus();
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="flex w-full items-center">
       <Input
+        ref={inputRef}
         type="text"
         placeholder="Ej: Plátanos, Leche, Pan..."
         value={itemName}

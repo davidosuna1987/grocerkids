@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useShoppingList } from '@/hooks/useShoppingList';
 import ProductSearchForm from '@/components/shopping/product-search-form';
-import ProductGrid from '@/components/shopping/product-grid';
+import ProductList from '@/components/shopping/product-list';
 import UploadListSheet from '@/components/shopping/upload-list-sheet';
 import ClearListSheet from '@/components/shopping/clear-list-sheet';
 import CelebrationSheet from '@/components/shopping/celebration-sheet';
@@ -13,13 +13,10 @@ import BottomNavigation from '@/components/shopping/bottom-navigation';
 import { Confetti } from '@/components/effects/Confetti';
 import { useConfetti } from '@/hooks/useConfetti';
 import SettingsSheet from '@/components/settings/SettingsSheet';
-import { useSettings } from '@/hooks/useSettings';
+import { useSettings } from '@/contexts/SettingsContext';
 import NavbarTop from '@/components/layout/navbar-top';
 
-type ViewMode = 'list' | 'grid';
-
 export default function ShoppingCart() {
-  const { provider } = useSettings();
   const {
     products,
     isLoading,
@@ -29,7 +26,7 @@ export default function ShoppingCart() {
     deleteProduct,
     clearList,
   } = useShoppingList();
-  const [viewMode, setViewMode] = React.useState<ViewMode>('list');
+  const { viewType } = useSettings();
   const [isUploadDialogOpen, setUploadDialogOpen] = React.useState(false);
   const [isClearListSheetOpen, setClearListSheetOpen] = React.useState(false);
   const [isCelebrationSheetOpen, setCelebrationSheetOpen] =
@@ -92,13 +89,12 @@ export default function ShoppingCart() {
         </div>
         <div>
           {isLoading ? (
-            <LoadingSkeleton viewMode={viewMode} />
+            <LoadingSkeleton viewMode={viewType} />
           ) : products.length > 0 ? (
-            <ProductGrid
+            <ProductList
               products={products}
               onToggleBought={toggleProductBought}
               onDelete={deleteProduct}
-              viewMode={viewMode}
             />
           ) : (
             <EmptyState />
@@ -107,8 +103,6 @@ export default function ShoppingCart() {
       </main>
 
       <BottomNavigation
-        viewMode={viewMode}
-        onViewModeToggle={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')}
         onUploadClick={() => setUploadDialogOpen(true)}
         onClearClick={() => setClearListSheetOpen(true)}
         hasProducts={products.length > 0}

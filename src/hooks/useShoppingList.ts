@@ -3,7 +3,6 @@
 import type { Product } from '@/types';
 import { useState, useEffect, useCallback } from 'react';
 import { useFoodImage } from './useFoodImage';
-import { useSettings } from './useSettings';
 
 const STORAGE_KEY = 'grocerkids-list';
 
@@ -11,7 +10,6 @@ export function useShoppingList() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { getProductImage } = useFoodImage();
-  const { provider } = useSettings();
 
   // Load from localStorage on initial client-side render
   useEffect(() => {
@@ -43,7 +41,7 @@ export function useShoppingList() {
   const addProduct = useCallback(async (name: string, image?: string) => {
     if (!name.trim()) return;
 
-    const imageUrl = image || await getProductImage(name.trim(), provider);
+    const imageUrl = image || await getProductImage(name.trim());
 
     const newProduct: Product = {
       id: crypto.randomUUID(),
@@ -52,7 +50,7 @@ export function useShoppingList() {
       bought: false,
     };
     setProducts((prev) => [newProduct, ...prev]);
-  }, [getProductImage, provider]);
+  }, [getProductImage]);
 
   const addMultipleProducts = useCallback(async (names: string[]) => {
     const validNames = names.filter(name => name && name.trim());
@@ -61,7 +59,7 @@ export function useShoppingList() {
     setIsLoading(true);
     const newProducts: Product[] = await Promise.all(
       validNames.map(async (name) => {
-        const imageUrl = await getProductImage(name.trim(), provider);
+        const imageUrl = await getProductImage(name.trim());
         return {
           id: crypto.randomUUID(),
           name: name.trim(),
@@ -75,7 +73,7 @@ export function useShoppingList() {
       setProducts(prev => [...newProducts, ...prev]);
     }
     setIsLoading(false);
-  }, [getProductImage, provider]);
+  }, [getProductImage]);
 
   const toggleProductBought = useCallback((id: string) => {
     setProducts((prev) =>

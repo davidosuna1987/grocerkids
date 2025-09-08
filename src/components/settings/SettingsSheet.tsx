@@ -15,8 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useSettings } from '@/hooks/useSettings';
-import type { ImageProvider } from '@/types';
+import { useSettings } from '@/contexts/SettingsContext';
+import { IMAGE_PROVIDERS_MAP, VIEW_TYPES_MAP, type ImageProvider, type ViewType } from '@/types';
 
 type SettingsSheetProps = {
   open: boolean;
@@ -27,10 +27,15 @@ export default function SettingsSheet({
   open,
   onOpenChange,
 }: SettingsSheetProps) {
-  const { provider, setProvider } = useSettings();
+  const { provider, viewType, setProvider, setViewType } = useSettings();
 
-  const handleProviderChange = (value: string) => {
-    setProvider(value as ImageProvider);
+  const handleProviderChange = (value: ImageProvider) => {
+    console.log("Selected provider:", value);
+    setProvider(value);
+  };
+
+  const handleViewTypeChange = (value: ViewType) => {
+    setViewType(value);
   };
 
   return (
@@ -43,7 +48,7 @@ export default function SettingsSheet({
           </SheetDescription>
         </SheetHeader>
         <div className="py-6 space-y-6 max-w-sm mx-auto">
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-2">
                  <Label htmlFor="image-provider" className="col-span-1">Proveedor de imágenes</Label>
                  <Select
                     value={provider}
@@ -53,8 +58,24 @@ export default function SettingsSheet({
                         <SelectValue placeholder="Seleccionar proveedor" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="pexels">Pexels</SelectItem>
-                        <SelectItem value="pixabay">Pixabay</SelectItem>
+                        <SelectItem value={IMAGE_PROVIDERS_MAP.pexels}>Pexels</SelectItem>
+                        <SelectItem value={IMAGE_PROVIDERS_MAP.pixabay}>Pixabay</SelectItem>
+                    </SelectContent>
+                 </Select>
+            </div>
+            
+            <div className="flex flex-col gap-2">
+                 <Label htmlFor="view-type" className="col-span-1">Tipo de vista</Label>
+                 <Select
+                    value={viewType}
+                    onValueChange={handleViewTypeChange}
+                 >
+                    <SelectTrigger id="view-type" className="col-span-2">
+                        <SelectValue placeholder="Seleccionar vista" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value={VIEW_TYPES_MAP.list}>Lista</SelectItem>
+                        <SelectItem value={VIEW_TYPES_MAP.grid}>Cuadrícula</SelectItem>
                     </SelectContent>
                  </Select>
             </div>

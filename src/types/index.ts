@@ -5,8 +5,21 @@ export interface Product {
   bought: boolean;
 }
 
-export type ImageProvider = "pexels" | "pixabay";
+export const IMAGE_PROVIDERS_MAP = {
+  pexels: 'pexels',
+  pixabay: 'pixabay',
+} as const;
+export const IMAGE_PROVIDERS = Object.values(IMAGE_PROVIDERS_MAP);
+export type ImageProvider = typeof IMAGE_PROVIDERS[number];
+
+export const VIEW_TYPES_MAP = {
+  list: 'list',
+  grid: 'grid',
+} as const;
+export const VIEW_TYPES = Object.values(VIEW_TYPES_MAP);
+export type ViewType = typeof VIEW_TYPES[number];
 
 export interface AppSettings {
   provider: ImageProvider;
+  viewType: ViewType;
 }

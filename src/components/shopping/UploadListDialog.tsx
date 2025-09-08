@@ -96,7 +96,7 @@ export default function UploadListDialog({
       }
     };
   }, [open, activeTab, preview, toast]);
-  
+
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
@@ -113,11 +113,11 @@ export default function UploadListDialog({
     if (videoRef.current && canvasRef.current) {
       const video = videoRef.current;
       const canvas = canvasRef.current;
-      
+
       const videoRect = video.getBoundingClientRect();
       const videoAspectRatio = video.videoWidth / video.videoHeight;
       const containerAspectRatio = videoRect.width / videoRect.height;
-      
+
       let sx, sy, sWidth, sHeight;
 
       if (videoAspectRatio > containerAspectRatio) { // Video is wider than container
@@ -134,7 +134,7 @@ export default function UploadListDialog({
 
       canvas.width = sWidth;
       canvas.height = sHeight;
-      
+
       const context = canvas.getContext('2d');
       if (context) {
         context.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, sWidth, sHeight);
@@ -178,7 +178,7 @@ export default function UploadListDialog({
   const handleClose = () => {
     onOpenChange(false);
   };
-  
+
   const resetPreview = () => {
     setPreview(null);
     setImageSource(null);
@@ -199,7 +199,7 @@ export default function UploadListDialog({
     if (preview) {
       return (
         <div className="space-y-4">
-          <div className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg">
+          <div className="relative flex flex-col items-center justify-center w-full aspect-video border-2 border-dashed rounded-lg">
             <Image
               src={preview}
               alt="Vista previa de la lista"
@@ -207,10 +207,10 @@ export default function UploadListDialog({
               height={150}
               className="object-contain h-full w-full p-2"
             />
-          </div>
-          <Button variant="outline" onClick={resetPreview} disabled={isPending}>
+          <Button variant="outline" onClick={resetPreview} disabled={isPending} className='absolute bottom-2 right-2'>
              {imageSource === 'camera' ? 'Hacer otra foto' : 'Cambiar foto'}
           </Button>
+          </div>
         </div>
       );
     }
@@ -297,15 +297,15 @@ export default function UploadListDialog({
             productos por ti!</span>
           </SheetDescription>
         </SheetHeader>
-        
+
         {renderContent()}
-        
+
         {preview && (
           <SheetFooter className="flex-col-reverse sm:flex-col-reverse gap-2 mt-4">
             <Button variant="outline" onClick={handleClose} disabled={isPending}>
               Cancelar
             </Button>
-            <Button onClick={handleGenerate} disabled={!preview || isPending}>
+            <Button className='!ml-0' onClick={handleGenerate} disabled={!preview || isPending}>
               {isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

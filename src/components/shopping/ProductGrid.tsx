@@ -22,8 +22,8 @@ export default function ProductGrid({ products, onToggleBought, onDelete, viewMo
     <motion.div
       layout
       className={cn({
-        'space-y-3': viewMode === 'list',
-        'grid grid-cols-2 gap-4': viewMode === 'grid',
+        'space-y-3 w-full mx-auto': viewMode === 'list',
+        'grid grid-cols-2 lg:grid-cols-3 gap-4 w-full mx-auto': viewMode === 'grid',
       })}
     >
       <AnimatePresence>

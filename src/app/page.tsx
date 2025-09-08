@@ -135,8 +135,8 @@ export default function Home() {
 
       <Header onSettingsClick={() => setSettingsSheetOpen(true)} />
 
-      <main className="flex-1 container mx-auto p-4 sm:p-6 lg:p-8">
-        <div className="w-full max-w-2xl mb-4">
+      <main className="flex-1 w-full max-w-3xl mx-auto p-4 sm:p-6 lg:p-8">
+        <div className="w-full mb-4 mx-auto">
           <ProductSearchForm addProduct={addProduct} />
         </div>
         <div>
@@ -185,8 +185,8 @@ export default function Home() {
         </div>
       </main>
 
-      <footer className="sticky bottom-0 bg-card shadow-[0_-2px_5px_rgba(0,0,0,0.05)] rounded-t-2xl">
-        <nav className="flex justify-around items-center h-20 px-4 max-w-2xl mx-auto">
+      <footer className="sticky bottom-0 bg-card shadow-[0_-2px_5px_rgba(0,0,0,0.05)] rounded-t-2xl max-w-3xl mx-auto w-full px-4">
+        <nav className="flex justify-between items-center h-20 px-4 mx-auto lg:px-0">
           <Button
             variant="ghost"
             className="flex flex-col items-center text-muted-foreground h-auto hover:bg-transparent [&:hover>span]:text-primary [&:hover>svg]:text-primary"

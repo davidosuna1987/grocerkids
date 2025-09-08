@@ -16,7 +16,7 @@ export default function Header({ onSettingsClick }: HeaderProps) {
             src={`/logo.png?v=1`}
             alt="Grocer Kids logo"
             width={180}
-            height={48} 
+            height={48}
             className="w-24"
             priority
           />

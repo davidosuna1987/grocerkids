@@ -38,6 +38,7 @@ export default function ProductCard({ product, onToggleBought, onDelete, viewMod
             fill
             sizes="(max-width: 768px) 50vw, 33vw"
             className="object-cover rounded-xl"
+            unoptimized
           />
         </div>
         <div className={cn( "flex-grow", viewMode === 'grid' ? 'text-center' : '')}>

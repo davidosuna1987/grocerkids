@@ -62,6 +62,7 @@ export default function SettingsSheet({
                         <SelectValue placeholder="Seleccionar proveedor" />
                     </SelectTrigger>
                     <SelectContent>
+                        <SelectItem value={IMAGE_PROVIDERS_MAP.google}>Google</SelectItem>
                         <SelectItem value={IMAGE_PROVIDERS_MAP.pexels}>Pexels</SelectItem>
                         <SelectItem value={IMAGE_PROVIDERS_MAP.pixabay}>Pixabay</SelectItem>
                     </SelectContent>

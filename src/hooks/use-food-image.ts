@@ -1,66 +1,118 @@
+// useFoodImage.ts (actualizado: Google "imagen-estricto")
 'use client';
 
 import { IMAGE_PROVIDERS_MAP, ImageProvider } from "@/types";
 import { useCallback } from "react";
 import { useSettings } from "@/contexts/settings-context";
 
-const PEXELS_API_KEY = process.env.NEXT_PUBLIC_PEXELS_API_KEY;
-const PIXABAY_API_KEY = process.env.NEXT_PUBLIC_PIXABAY_API_KEY;
+const PEXELS_API_KEY   = process.env.NEXT_PUBLIC_PEXELS_API_KEY;
+const PIXABAY_API_KEY  = process.env.NEXT_PUBLIC_PIXABAY_API_KEY;
+const GOOGLE_CSE_CX    = process.env.NEXT_PUBLIC_GOOGLE_CSE_CX;
+const GOOGLE_API_KEY   = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
 
 export function useFoodImage() {
   const { provider: currentProvider } = useSettings();
 
-  const getProductImage = useCallback(async (food: string, provider?: ImageProvider): Promise<string> => {
-    const activeProvider = provider || currentProvider;
-    const fallbackImage = `https://picsum.photos/400/400?random=${crypto.randomUUID()}`;
+  const pickLargestGoogleImage = (items: any[]) => {
+    // Ordena por área (width*height) desc y devuelve el link
+    const withDims = items
+      .map((it) => ({
+        url: it.link,
+        width: it.image?.width ?? 0,
+        height: it.image?.height ?? 0,
+        area: (it.image?.width ?? 0) * (it.image?.height ?? 0),
+        thumb: it.image?.thumbnailLink,
+      }))
+      .filter((i) => i.url);
 
-    if (!food) return fallbackImage;
+    if (!withDims.length) return null;
+    withDims.sort((a, b) => b.area - a.area);
+    return withDims[0].url || withDims[0].thumb || null;
+  };
 
-    try {
-      let url = "";
-      let headers: HeadersInit = {};
+  const getProductImage = useCallback(
+    async (food: string, provider?: ImageProvider): Promise<string> => {
+      const activeProvider = provider || currentProvider;
+      const fallbackImage = `https://picsum.photos/400/400?random=${crypto.randomUUID()}`;
 
-      if (activeProvider === IMAGE_PROVIDERS_MAP.pexels) {
-        if (!PEXELS_API_KEY) {
-          console.error("Pexels API key is missing. Make sure it's defined in .env as NEXT_PUBLIC_PEXELS_API_KEY");
+      if (!food?.trim()) return fallbackImage;
+
+      try {
+        let url = "";
+        let headers: HeadersInit = {};
+
+        if (activeProvider === IMAGE_PROVIDERS_MAP.pexels) {
+          if (!PEXELS_API_KEY) {
+            console.error("Pexels API key missing: NEXT_PUBLIC_PEXELS_API_KEY");
+            return fallbackImage;
+          }
+          url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(food)}&locale=es-ES&per_page=1`;
+          headers = { Authorization: PEXELS_API_KEY };
+
+        } else if (activeProvider === IMAGE_PROVIDERS_MAP.pixabay) {
+          if (!PIXABAY_API_KEY) {
+            console.error("Pixabay API key missing: NEXT_PUBLIC_PIXABAY_API_KEY");
+            return fallbackImage;
+          }
+          url = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(food)}&lang=es&image_type=photo&per_page=5`;
+
+        } else if (activeProvider === IMAGE_PROVIDERS_MAP.google) {
+          if (!GOOGLE_CSE_CX || !GOOGLE_API_KEY) {
+            console.error("Google CSE creds missing: NEXT_PUBLIC_GOOGLE_CSE_CX / NEXT_PUBLIC_GOOGLE_API_KEY");
+            return fallbackImage;
+          }
+          // Afinado “estilo imágenes de Google”
+          // - searchType=image → solo imágenes
+          // - imgType=photo, imgSize=large → resultados más fotográficos y grandes
+          // - hl=es, gl=es, lr=lang_es → sesgo a español
+          // - num=10 → más candidatos para elegir el más grande/nítido
+          const params = new URLSearchParams({
+            q: food,
+            searchType: 'image',
+            cx: GOOGLE_CSE_CX,
+            key: GOOGLE_API_KEY,
+            num: '10',
+            safe: 'active',
+            hl: 'es',
+            gl: 'ES',
+            lr: 'lang_es',
+          });
+          url = `https://www.googleapis.com/customsearch/v1?${params.toString()}`;
+
+        } else {
           return fallbackImage;
         }
-        url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(
-          food
-        )}&locale=es-ES&per_page=1`;
-        headers = { Authorization: PEXELS_API_KEY };
-      } else if (activeProvider === IMAGE_PROVIDERS_MAP.pixabay) {
-         if (!PIXABAY_API_KEY) {
-          console.error("Pixabay API key is missing. Make sure it's defined in .env as NEXT_PUBLIC_PIXABAY_API_KEY");
-          return fallbackImage;
+
+        const response = await fetch(url, { headers });
+        if (!response.ok) {
+          throw new Error(`Error fetching image from ${String(activeProvider)}: ${response.status}`);
         }
-        url = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(
-          food
-        )}&lang=es&image_type=photo&per_page=3`;
-      } else {
+
+        const data = await response.json();
+
+        if (activeProvider === IMAGE_PROVIDERS_MAP.pexels && Array.isArray(data.photos) && data.photos.length > 0) {
+          return data.photos[0].src?.large ?? data.photos[0].src?.medium ?? fallbackImage;
+        }
+
+        if (activeProvider === IMAGE_PROVIDERS_MAP.pixabay && Array.isArray(data.hits) && data.hits.length > 0) {
+          return data.hits[0].largeImageURL ?? data.hits[0].webformatURL ?? fallbackImage;
+        }
+
+        if (activeProvider === IMAGE_PROVIDERS_MAP.google && Array.isArray(data.items) && data.items.length > 0) {
+          const best = pickLargestGoogleImage(data.items);
+          return best ?? fallbackImage;
+        }
+
+        console.log(`No results on ${String(activeProvider)} for "${food}", using fallback.`);
+        return fallbackImage;
+
+      } catch (err: any) {
+        console.error(err?.message ?? err);
         return fallbackImage;
       }
-
-      const response = await fetch(url, { headers });
-      if (!response.ok) {
-        throw new Error(`Error fetching image from ${activeProvider}: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (activeProvider === IMAGE_PROVIDERS_MAP.pexels && data.photos.length > 0) {
-        return data.photos[0].src.large;
-      } else if (activeProvider === IMAGE_PROVIDERS_MAP.pixabay && data.hits.length > 0) {
-        return data.hits[0].largeImageURL;
-      } else {
-        console.log(`No results found on ${activeProvider} for "${food}", using fallback.`);
-        return fallbackImage;
-      }
-    } catch (err: any) {
-      console.error(err.message);
-      return fallbackImage;
-    }
-  }, [currentProvider]);
+    },
+    [currentProvider]
+  );
 
   return { getProductImage };
 }

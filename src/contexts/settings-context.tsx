@@ -6,7 +6,7 @@ import { useTheme } from 'next-themes';
 
 const SETTINGS_KEY = 'grocerkids-settings';
 const DEFAULT_SETTINGS: AppSettings = {
-  provider: IMAGE_PROVIDERS_MAP.pexels,
+  provider: IMAGE_PROVIDERS_MAP.google,
   viewType: VIEW_TYPES_MAP.list,
   theme: THEMES_MAP.system,
 };

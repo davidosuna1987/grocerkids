@@ -6,6 +6,7 @@ export interface Product {
 }
 
 export const IMAGE_PROVIDERS_MAP = {
+  google: 'google',
   pexels: 'pexels',
   pixabay: 'pixabay',
 } as const;

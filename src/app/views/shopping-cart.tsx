@@ -10,11 +10,11 @@ import CelebrationSheet from '@/components/shopping/celebration-sheet';
 import EmptyState from '@/components/shopping/empty-state';
 import LoadingSkeleton from '@/components/shopping/loading-skeleton';
 import BottomNavigation from '@/components/shopping/bottom-navigation';
-import { Confetti } from '@/components/effects/Confetti';
 import { useConfetti } from '@/hooks/use-confetti';
-import SettingsSheet from '@/components/settings/SettingsSheet';
+import SettingsSheet from '@/components/settings/settings-sheet';
 import { useSettings } from '@/contexts/settings-context';
 import NavbarTop from '@/components/layout/navbar-top';
+import { Confetti } from '@/components/effects/confetti';
 
 export default function ShoppingCart() {
   const {

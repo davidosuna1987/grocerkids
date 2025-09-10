@@ -3,6 +3,7 @@
 import type { Product } from '@/types';
 import ProductListItem from './product-list-item';
 import { useSettings } from '@/contexts/settings-context';
+import { AnimatePresence, motion } from 'framer-motion';
 
 type ProductListProps = {
   products: Product[];
@@ -17,22 +18,26 @@ export default function ProductList({
 }: ProductListProps) {
   const { viewType } = useSettings();
   return (
-    <div
+    <motion.div
+      layout
       className={
         viewType === 'list'
           ? 'space-y-3'
           : 'grid grid-cols-2 gap-4'
       }
     >
-      {products.map((product) => (
-        <ProductListItem
-          key={product.id}
-          product={product}
-          onToggleBought={onToggleBought}
-          onDelete={onDelete}
-          viewMode={viewType}
-        />
-      ))}
-    </div>
+      <AnimatePresence>
+        {products.map((product) => (
+            <motion.div key={product.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <ProductListItem
+                product={product}
+                onToggleBought={onToggleBought}
+                onDelete={onDelete}
+                viewMode={viewType}
+              />
+            </motion.div>
+        ))}
+      </AnimatePresence>
+    </motion.div>
   );
 }

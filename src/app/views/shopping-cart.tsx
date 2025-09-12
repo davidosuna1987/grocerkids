@@ -82,11 +82,14 @@ export default function ShoppingCart() {
       />
 
       <NavbarTop onSettingsClick={() => setSettingsSheetOpen(true)} />
+      
+      <div className="sticky top-16 z-30 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-[0_2px_5px_rgba(0,0,0,0.05)]">
+        <div className="w-full max-w-3xl mx-auto p-4 sm:p-6 lg:px-8">
+            <ProductSearchForm addProduct={addProduct} />
+        </div>
+      </div>
 
       <main className="flex-1 w-full max-w-3xl mx-auto p-4 sm:p-6 lg:p-8">
-        <div className="w-full mb-4 mx-auto">
-          <ProductSearchForm addProduct={addProduct} />
-        </div>
         <div>
           {isLoading ? (
             <LoadingSkeleton viewMode={viewType} />

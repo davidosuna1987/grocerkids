@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from '@/components/theme-provider';
 import { SettingsProvider } from '@/contexts/settings-context';
+import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
   title: 'Grocer Kids',
@@ -24,17 +25,19 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Grocer Kids" />
       </head>
       <body className={cn("font-body antialiased", "min-h-screen bg-background")}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <SettingsProvider>
-            {children}
-            <Toaster />
-          </SettingsProvider>
-        </ThemeProvider>
+        <FirebaseClientProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <SettingsProvider>
+              {children}
+              <Toaster />
+            </SettingsProvider>
+          </ThemeProvider>
+        </FirebaseClientProvider>
       </body>
     </html>
   );

@@ -72,7 +72,7 @@ export default function SettingsSheet({
     setIsLeaving(true);
     const success = await leaveFamily();
     if(success) {
-        toast({ title: 'Has abandonado la familia', description: 'Has abandonado la familia y tu lista ahora es local.' });
+        toast({ title: 'Has abandonado la lista familiar', description: 'Has abandonado la lista familiar y tu lista ahora es local.' });
     } else {
         toast({ variant: 'destructive', title: 'Error', description: 'No se pudo abandonar la familia.' });
     }

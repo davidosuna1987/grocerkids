@@ -81,7 +81,7 @@ export default function ShoppingCart() {
         onClearList={handleClearList}
       />
 
-      <NavbarTop onSettingsClick={() => setSettingsSheetOpen(true)} />
+      <NavbarTop />
       
       <div className="sticky top-16 z-30 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-[0_2px_5px_rgba(0,0,0,0.05)]">
         <div className="w-full max-w-3xl mx-auto p-4 sm:p-6 lg:px-8">
@@ -108,6 +108,7 @@ export default function ShoppingCart() {
       <BottomNavigation
         onUploadClick={() => setUploadDialogOpen(true)}
         onClearClick={() => setClearListSheetOpen(true)}
+        onSettingsClick={() => setSettingsSheetOpen(true)}
         hasProducts={products.length > 0}
       />
     </div>

@@ -56,9 +56,10 @@ export default function BottomNavigation({
         <Button
           variant="ghost"
           className="flex flex-col items-center text-muted-foreground h-auto hover:bg-transparent [&:hover>span]:text-primary [&:hover>svg]:text-primary"
-          onClick={onSettingsClick}
+          onClick={onClearClick}
+          disabled={!hasProducts}
         >
-          <Settings className="!size-7" />
+          <Trash2 className='!size-7' />
         </Button>
 
         <Button
@@ -86,10 +87,9 @@ export default function BottomNavigation({
         <Button
           variant="ghost"
           className="flex flex-col items-center text-muted-foreground h-auto hover:bg-transparent [&:hover>span]:text-primary [&:hover>svg]:text-primary"
-          onClick={onClearClick}
-          disabled={!hasProducts}
+          onClick={onSettingsClick}
         >
-          <Trash2 className='!size-7' />
+          <Settings className="!size-7" />
         </Button>
         
         <Button

@@ -105,7 +105,7 @@ export default function SettingsSheet({
     }}>
       <SheetContent side="bottom" className="rounded-t-2xl">
         <SheetHeader className="text-center">
-          <SheetTitle>Ajustes</SheetTitle>
+          <SheetTitle className="-mb-2">Ajustes</SheetTitle>
           <SheetDescription>
             Personaliza tu experiencia en Grocer Kids.
           </SheetDescription>
@@ -134,9 +134,9 @@ export default function SettingsSheet({
                   </Button>
                 </div>
               )}
-              <p className="text-xs text-muted-foreground text-center px-2">
+              <p className="text-xs text-muted-foreground">
                 {isLastMember 
-                  ? 'Eres el último miembro. Si eliminas la lista, se borrará permanentemente pero siempre podrás crear una nueva.' 
+                  ? 'Eres el único miembro de esta lista. Si eliminas la lista, se borrará permanentemente pero siempre podrás crear una nueva.' 
                   : `Comparte este código para usar la misma lista. Actualmente hay ${membersCount} miembros.`
                 }
               </p>
@@ -149,7 +149,7 @@ export default function SettingsSheet({
                 <div className="flex items-center gap-2">
                   <Input
                     id="join-family"
-                    placeholder="Introduce el código de la lista familiar"
+                    placeholder="Introduce el código de la lista"
                     value={familyIdInput}
                     onChange={(e) => setFamilyIdInput(e.target.value)}
                     disabled={isJoining || isCreating}

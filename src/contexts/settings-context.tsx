@@ -121,21 +121,19 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
   }, [firestore, setFamilyId]);
 
   const joinFamily = useCallback(async (familyIdToJoin: string) => {
-    if (!firestore || settings.familyId === familyIdToJoin) return false;
+    if (!firestore) return false;
     const familyRef = doc(firestore, 'families', familyIdToJoin);
     try {
-      await runTransaction(firestore, async (transaction) => {
-        const familyDoc = await transaction.get(familyRef);
-        if (!familyDoc.exists()) {
-            throw new Error("Document does not exist!");
+      const familyDoc = await getDoc(familyRef);
+      if (familyDoc.exists()) {
+        await setDoc(familyRef, { members: increment(1) }, { merge: true });
+        if(settings.familyId) {
+          await leaveFamily();
         }
-        transaction.update(familyRef, { members: increment(1) });
-      });
-      if(settings.familyId) {
-        await leaveFamily();
+        setFamilyId(familyIdToJoin);
+        return true;
       }
-      setFamilyId(familyIdToJoin);
-      return true;
+      return false;
     } catch (error) {
       console.error("Error joining family:", error);
       return false;

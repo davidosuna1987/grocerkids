@@ -83,14 +83,6 @@ export default function BottomNavigation({
             <Camera className='!size-8 sm:!size-10' />
           </div>
         </Button>
-
-        <Button
-          variant="ghost"
-          className="flex flex-col items-center text-muted-foreground h-auto hover:bg-transparent [&:hover>span]:text-primary [&:hover>svg]:text-primary"
-          onClick={onSettingsClick}
-        >
-          <Settings className="!size-6 sm:!size-7" />
-        </Button>
         
         <Button
           variant="ghost"
@@ -98,6 +90,14 @@ export default function BottomNavigation({
           onClick={handleShare}
         >
           <Share2 className='!size-6 sm:!size-7' />
+        </Button>
+
+        <Button
+          variant="ghost"
+          className="flex flex-col items-center text-muted-foreground h-auto hover:bg-transparent [&:hover>span]:text-primary [&:hover>svg]:text-primary"
+          onClick={onSettingsClick}
+        >
+          <Settings className="!size-6 sm:!size-7" />
         </Button>
       </nav>
     </footer>

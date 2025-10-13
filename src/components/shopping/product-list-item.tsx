@@ -17,7 +17,7 @@ export default function ProductCard({ product, onToggleBought, onDelete, viewMod
   const uniqueId = `item-${product.id}`;
   return (
     <div className={cn(
-      "bg-card rounded-2xl shadow-sm transition-all duration-300 relative group overflow-hidden",
+      "bg-card rounded-2xl shadow-sm relative group overflow-hidden",
       viewMode === 'list' ? 'flex items-center gap-4 p-3' : 'flex flex-col p-4 gap-2'
     )}>
        <input 
@@ -50,7 +50,7 @@ export default function ProductCard({ product, onToggleBought, onDelete, viewMod
             size={viewMode === 'list' ? 'default' : 'icon'}
             variant="destructive"
             className={cn(
-              'rounded-full',
+              'rounded-full transition-none',
               viewMode === 'list' 
                 ? 'h-full w-14 rounded-l-none rounded-r-xl'
                 : 'h-8 w-8'

@@ -32,4 +32,5 @@ export interface AppSettings {
   provider: ImageProvider;
   viewType: ViewType;
   theme: Theme;
+  familyId?: string | null;
 }

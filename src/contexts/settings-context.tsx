@@ -1,23 +1,29 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { IMAGE_PROVIDERS, AppSettings, ImageProvider, IMAGE_PROVIDERS_MAP, ViewType, VIEW_TYPES_MAP, VIEW_TYPES, Theme, THEMES_MAP, THEMES } from '@/types';
+import { AppSettings, ImageProvider, IMAGE_PROVIDERS_MAP, ViewType, VIEW_TYPES_MAP, THEMES_MAP, Theme, IMAGE_PROVIDERS, VIEW_TYPES, THEMES } from '@/types';
 import { useTheme } from 'next-themes';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
 
 const SETTINGS_KEY = 'grocerkids-settings';
 const DEFAULT_SETTINGS: AppSettings = {
   provider: IMAGE_PROVIDERS_MAP.google,
   viewType: VIEW_TYPES_MAP.list,
   theme: THEMES_MAP.system,
+  familyId: null,
 };
 
 interface SettingsContextType {
   provider: ImageProvider;
   viewType: ViewType;
   theme: Theme;
+  familyId: string | null | undefined;
   setProvider: (provider: ImageProvider) => void;
   setViewType: (viewType: ViewType) => void;
   setTheme: (theme: Theme) => void;
+  createNewFamily: (currentProducts: any[]) => Promise<string | null>;
+  joinFamily: (familyId: string) => Promise<boolean>;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -29,30 +35,21 @@ interface SettingsProviderProps {
 export function SettingsProvider({ children }: SettingsProviderProps) {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const { setTheme: setNextTheme } = useTheme();
+  const firestore = useFirestore();
 
   useEffect(() => {
     try {
       const storedSettings = window.localStorage.getItem(SETTINGS_KEY);
       if (storedSettings) {
         const parsedSettings = JSON.parse(storedSettings);
-        // Basic validation to ensure provider, viewType and theme are valid values
-        if (IMAGE_PROVIDERS.includes(parsedSettings.provider) && 
-            VIEW_TYPES.includes(parsedSettings.viewType) &&
-            THEMES.includes(parsedSettings.theme)) {
-            setSettings(parsedSettings);
-            setNextTheme(parsedSettings.theme);
-        } else {
-          // If validation fails, merge with defaults to ensure all required properties exist
-          const validSettings = {
-            ...DEFAULT_SETTINGS,
-            ...parsedSettings,
-            provider: IMAGE_PROVIDERS.includes(parsedSettings.provider) ? parsedSettings.provider : DEFAULT_SETTINGS.provider,
-            viewType: VIEW_TYPES.includes(parsedSettings.viewType) ? parsedSettings.viewType : DEFAULT_SETTINGS.viewType,
-            theme: THEMES.includes(parsedSettings.theme) ? parsedSettings.theme : DEFAULT_SETTINGS.theme,
-          };
-          setSettings(validSettings);
-          setNextTheme(validSettings.theme);
-        }
+        const validSettings: AppSettings = {
+          provider: IMAGE_PROVIDERS.includes(parsedSettings.provider) ? parsedSettings.provider : DEFAULT_SETTINGS.provider,
+          viewType: VIEW_TYPES.includes(parsedSettings.viewType) ? parsedSettings.viewType : DEFAULT_SETTINGS.viewType,
+          theme: THEMES.includes(parsedSettings.theme) ? parsedSettings.theme : DEFAULT_SETTINGS.theme,
+          familyId: parsedSettings.familyId || null,
+        };
+        setSettings(validSettings);
+        setNextTheme(validSettings.theme);
       }
     } catch (error) {
       console.error('Failed to load settings from localStorage', error);
@@ -77,18 +74,55 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
 
   const setTheme = useCallback((theme: Theme) => {
     setSettings((prev) => ({ ...prev, theme }));
-    // Force immediate theme change
     setNextTheme(theme);
   }, [setNextTheme]);
+
+  const setFamilyId = useCallback((familyId: string | null) => {
+    setSettings(prev => ({ ...prev, familyId }));
+  }, []);
+
+  const createNewFamily = useCallback(async (currentProducts: any[]) => {
+    if (!firestore) return null;
+    const newFamilyId = crypto.randomUUID().split('-')[0];
+    const familyRef = doc(firestore, 'families', newFamilyId);
+    try {
+      await setDoc(familyRef, { id: newFamilyId, shoppingList: currentProducts });
+      setFamilyId(newFamilyId);
+      return newFamilyId;
+    } catch (error) {
+      console.error("Error creating new family:", error);
+      return null;
+    }
+  }, [firestore, setFamilyId]);
+
+  const joinFamily = useCallback(async (familyIdToJoin: string) => {
+    if (!firestore) return false;
+    const familyRef = doc(firestore, 'families', familyIdToJoin);
+    try {
+      const docSnap = await getDoc(familyRef);
+      if (docSnap.exists()) {
+        setFamilyId(familyIdToJoin);
+        // The useShoppingList hook will handle syncing the list
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error joining family:", error);
+      return false;
+    }
+  }, [firestore, setFamilyId]);
 
   return (
     <SettingsContext.Provider value={{
       provider: settings.provider,
       viewType: settings.viewType,
       theme: settings.theme,
+      familyId: settings.familyId,
       setProvider,
       setViewType,
       setTheme,
+      createNewFamily,
+      joinFamily,
     }}>
       {children}
     </SettingsContext.Provider>

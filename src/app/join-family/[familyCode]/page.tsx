@@ -11,7 +11,6 @@ export default function JoinFamilyPage() {
   const params = useParams();
   const { joinFamily } = useSettings();
   const { toast } = useToast();
-  const [isJoining, setIsJoining] = useState(true);
   const [hasRun, setHasRun] = useState(false);
 
   const familyCode = Array.isArray(params.familyCode)
@@ -22,21 +21,7 @@ export default function JoinFamilyPage() {
     if (familyCode && !hasRun) {
       setHasRun(true); // Evita ejecuciones múltiples
       const handleJoin = async () => {
-        const success = await joinFamily(familyCode);
-        if (success) {
-          toast({
-            title: '¡Te has unido a la lista!',
-            description: 'Tu lista de la compra se ha sincronizado.',
-          });
-        } else {
-          toast({
-            variant: 'destructive',
-            title: 'Error',
-            description:
-              'El código introducido no es válido o la lista ya no existe.',
-          });
-        }
-        setIsJoining(false);
+        await joinFamily(familyCode);
         router.push('/');
       };
 

@@ -14,6 +14,12 @@ const DEFAULT_SETTINGS: AppSettings = {
   familyId: null,
 };
 
+export interface JoinFamilyLink {
+  title: string;
+  text: string;
+  url: string;
+}
+
 interface SettingsContextType {
   provider: ImageProvider;
   viewType: ViewType;
@@ -26,6 +32,7 @@ interface SettingsContextType {
   createNewFamily: (currentProducts: any[]) => Promise<string | null>;
   joinFamily: (familyId: string) => Promise<boolean>;
   leaveFamily: () => Promise<{ success: boolean; wasLastMember: boolean }>;
+  generateJoinFamilyLink: (familyId: string | null | undefined) => JoinFamilyLink | null;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -36,7 +43,7 @@ interface SettingsProviderProps {
 
 export function SettingsProvider({ children }: SettingsProviderProps) {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
-  const [membersCount, setMembersCount] = useState(0);
+  const [membersCount, setMembersCount] = useState<number>(0);
   const { setTheme: setNextTheme } = useTheme();
   const firestore = useFirestore();
 
@@ -104,6 +111,14 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
 
   const setFamilyId = useCallback((familyId: string | null) => {
     setSettings(prev => ({ ...prev, familyId }));
+  }, []);
+
+  const generateJoinFamilyLink = useCallback((familyId: string | null | undefined): JoinFamilyLink | null => {
+    return familyId ? { 
+      title: 'Grocer Kids: Lista de la compra compartida',
+      text: familyId ? `¡Únete a mi lista de la compra en Grocer Kids! Usa este código: ${familyId}` : '',
+      url: familyId ? `${window.location.origin}/join-family/${familyId}` : ''
+    } : null;
   }, []);
 
   const createNewFamily = useCallback(async (currentProducts: any[]) => {
@@ -184,6 +199,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
       createNewFamily,
       joinFamily,
       leaveFamily,
+      generateJoinFamilyLink,
     }}>
       {children}
     </SettingsContext.Provider>

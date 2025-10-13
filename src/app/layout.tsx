@@ -8,7 +8,7 @@ import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
   title: 'Grocer Kids',
-  description: 'Una lista de la compra divertida y visual para niños y padres.',
+  description: 'Una lista de la compra divertida y visual para niños y padres. Comparte lista de la compra con tus seres queridos y sincronízala con los demás de la casa.',
 };
 
 export default function RootLayout({

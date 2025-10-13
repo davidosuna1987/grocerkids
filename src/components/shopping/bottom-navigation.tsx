@@ -2,9 +2,11 @@
 
 import { Button } from '@/components/ui/button';
 import { Trash2, List, Grid, Camera, Settings, Share2 } from 'lucide-react';
-import { useSettings } from '@/contexts/settings-context';
+import { JoinFamilyLink, useSettings } from '@/contexts/settings-context';
 import { VIEW_TYPES_MAP } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { useShoppingList } from '@/hooks/use-shopping-list';
+import { useEffect, useState } from 'react';
 
 type BottomNavigationProps = {
   onUploadClick: () => void;
@@ -19,34 +21,31 @@ export default function BottomNavigation({
   onSettingsClick,
   hasProducts,
 }: BottomNavigationProps) {
-  const { viewType, setViewType, familyId } = useSettings();
   const { toast } = useToast();
+  const { products } = useShoppingList();
+  const { viewType, setViewType, createNewFamily, familyId, generateJoinFamilyLink } = useSettings();
 
   const handleViewToggle = () => {
     const newViewType = viewType === VIEW_TYPES_MAP.list ? VIEW_TYPES_MAP.grid : VIEW_TYPES_MAP.list;
     setViewType(newViewType);
   };
-  
+
   const handleShare = async () => {
-    if (familyId && navigator.share) {
-      try {
-        await navigator.share({
-          title: 'Grocer Kids: Lista de la compra',
-          text: `¡Únete a mi lista de la compra en Grocer Kids! Usa este código: ${familyId}`,
-          url: window.location.href,
-        });
-      } catch (error) {
-        console.error('Error al compartir:', error);
-        toast({
-          variant: 'destructive',
-          title: 'Error',
-          description: 'No se pudo compartir la lista.',
-        });
+    if(familyId) {
+      await copyToClipboard(familyId);
+    } else {
+      const newFamilyId = await createNewFamily(products);
+      await copyToClipboard(newFamilyId);
+    }
+  }
+  
+  const copyToClipboard = async (familyId: string | null | undefined) => {
+    if (familyId) {
+      const joinFamilyLink: JoinFamilyLink | null = generateJoinFamilyLink(familyId);
+      if (joinFamilyLink) {
+        await navigator.clipboard.writeText(joinFamilyLink.url);
+        toast({ title: '¡Copiado!', description: 'El enlace para unirse a la lista se ha copiado al portapapeles.' });
       }
-    } else if (familyId) {
-      // Fallback for browsers that don't support navigator.share
-      navigator.clipboard.writeText(familyId);
-      toast({ title: '¡Copiado!', description: 'Código de lista copiado al portapapeles.' });
     }
   };
 

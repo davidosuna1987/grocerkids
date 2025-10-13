@@ -70,15 +70,14 @@ export default function SettingsSheet({
 
   const handleLeaveFamily = async () => {
     setIsLeaving(true);
-    const isLastMember = membersCount <= 1;
-    const success = await leaveFamily();
-    if(success) {
-        toast({ 
-          title: isLastMember ? 'Lista familiar eliminada' : 'Has abandonado la lista familiar', 
-          description: isLastMember ? 'La lista ha sido eliminada permanentemente.' : 'Tu lista ahora es local.' 
-        });
+    const { success, wasLastMember } = await leaveFamily();
+    if (success) {
+      toast({
+        title: wasLastMember ? 'Lista familiar eliminada' : 'Has abandonado la lista familiar',
+        description: wasLastMember ? 'La lista ha sido eliminada permanentemente.' : 'Tu lista ahora es local.'
+      });
     } else {
-        toast({ variant: 'destructive', title: 'Error', description: 'No se pudo realizar la operación.' });
+      toast({ variant: 'destructive', title: 'Error', description: 'No se pudo realizar la operación.' });
     }
     setIsLeaving(false);
     setIsConfirmingLeave(false);
@@ -92,7 +91,7 @@ export default function SettingsSheet({
   };
   
   const isLastMember = membersCount <= 1;
-  const leaveButtonText = isLastMember ? 'Eliminar lista' : 'Abandonar lista familiar';
+  const leaveButtonText = isLastMember ? 'Eliminar lista' : 'Abandonar lista';
   const LeaveIcon = isLastMember ? Trash2 : LogOut;
 
 
@@ -115,9 +114,9 @@ export default function SettingsSheet({
             <div className="space-y-2">
               <Label>El código de tu lista familiar</Label>
               {isConfirmingLeave ? (
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Button variant="destructive" onClick={handleLeaveFamily} disabled={isLeaving} className="w-full">
-                    {isLeaving ? <Loader2 className="animate-spin" /> : leaveButtonText}
+                    {isLeaving ? <Loader2 className="animate-spin" /> : <><LeaveIcon className="mr-2 h-4 w-4" />{leaveButtonText}</>}
                   </Button>
                   <Button variant="outline" onClick={() => setIsConfirmingLeave(false)} disabled={isLeaving} className="w-full">
                     Cancelar
@@ -125,16 +124,16 @@ export default function SettingsSheet({
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                   <Button size="icon" variant="outline" onClick={() => setIsConfirmingLeave(true)}>
-                    <LeaveIcon className="h-4 w-4 text-destructive" />
+                   <Button size="icon" variant="ghost" onClick={() => setIsConfirmingLeave(true)} className="text-muted-foreground hover:text-destructive">
+                    <LeaveIcon className="h-5 w-5" />
                   </Button>
-                  <Input value={familyId} readOnly className="font-mono text-center" />
-                  <Button size="icon" variant="outline" onClick={handleCopyToClipboard}>
-                    <Copy className="h-4 w-4" />
+                  <Input value={familyId} readOnly className="font-mono text-center flex-grow" />
+                  <Button size="icon" variant="ghost" onClick={handleCopyToClipboard} className="text-muted-foreground hover:text-primary">
+                    <Copy className="h-5 w-5" />
                   </Button>
                 </div>
               )}
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground text-center px-2">
                 {isLastMember 
                   ? 'Eres el último miembro. Si eliminas la lista, se borrará para siempre.' 
                   : `Comparte este código para usar la misma lista. Hay ${membersCount} miembros.`

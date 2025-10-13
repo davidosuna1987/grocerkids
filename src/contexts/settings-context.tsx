@@ -25,7 +25,7 @@ interface SettingsContextType {
   setTheme: (theme: Theme) => void;
   createNewFamily: (currentProducts: any[]) => Promise<string | null>;
   joinFamily: (familyId: string) => Promise<boolean>;
-  leaveFamily: () => Promise<boolean>;
+  leaveFamily: () => Promise<{ success: boolean; wasLastMember: boolean }>;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -78,6 +78,10 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
           // If doc is deleted from another client, reset local state
           setFamilyId(null);
         }
+      }, (error) => {
+        console.error("Error with family snapshot:", error);
+        setMembersCount(0);
+        setFamilyId(null);
       });
       return () => unsubscribe();
     } else {
@@ -127,6 +131,9 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
         }
         transaction.update(familyRef, { members: increment(1) });
       });
+      if(settings.familyId) {
+        await leaveFamily();
+      }
       setFamilyId(familyIdToJoin);
       return true;
     } catch (error) {
@@ -135,22 +142,36 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     }
   }, [firestore, setFamilyId, settings.familyId]);
 
-  const leaveFamily = useCallback(async () => {
-    if (!settings.familyId || !firestore) return false;
+  const leaveFamily = useCallback(async (): Promise<{ success: boolean; wasLastMember: boolean }> => {
+    if (!settings.familyId || !firestore) return { success: false, wasLastMember: false };
+    
     const familyRef = doc(firestore, 'families', settings.familyId);
+    let wasLastMember = false;
+
     try {
-        if(membersCount <= 1) {
-            await deleteDoc(familyRef);
-        } else {
-            await setDoc(familyRef, { members: increment(-1) }, { merge: true });
-        }
+        await runTransaction(firestore, async (transaction) => {
+            const familyDoc = await transaction.get(familyRef);
+            if (!familyDoc.exists()) {
+                // Document already gone, so just clean up locally
+                return;
+            }
+            
+            const currentMembers = familyDoc.data().members || 0;
+            if (currentMembers <= 1) {
+                wasLastMember = true;
+                transaction.delete(familyRef);
+            } else {
+                transaction.update(familyRef, { members: increment(-1) });
+            }
+        });
+
         setFamilyId(null);
-        return true;
+        return { success: true, wasLastMember };
     } catch (error) {
-        console.error("Error leaving family:", error);
-        return false;
+        console.error("Error leaving/deleting family:", error);
+        return { success: false, wasLastMember: false };
     }
-}, [settings.familyId, firestore, setFamilyId, membersCount]);
+}, [settings.familyId, firestore, setFamilyId]);
 
   return (
     <SettingsContext.Provider value={{

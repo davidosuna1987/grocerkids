@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator'
 import { useSettings } from '@/contexts/settings-context';
-import { IMAGE_PROVIDERS_MAP, VIEW_TYPES_MAP, THEMES_MAP, type ImageProvider, type ViewType, type Theme } from '@/types';
+import { IMAGE_PROVIDERS_MAP, type ImageProvider } from '@/types';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { useState } from 'react';
@@ -35,7 +35,7 @@ export default function SettingsSheet({
   open,
   onOpenChange,
 }: SettingsSheetProps) {
-  const { provider, viewType, theme, familyId, setProvider, setViewType, setTheme, createNewFamily, joinFamily, leaveFamily } = useSettings();
+  const { provider, familyId, setProvider, createNewFamily, joinFamily, leaveFamily } = useSettings();
   const { products } = useShoppingList();
   const [familyIdInput, setFamilyIdInput] = useState('');
   const [isCreating, setIsCreating] = useState(false);
@@ -48,9 +48,9 @@ export default function SettingsSheet({
     setIsCreating(true);
     const newFamilyId = await createNewFamily(products);
     if (newFamilyId) {
-      toast({ title: '¡Familia creada!', description: `Tu código de familia es ${newFamilyId}` });
+      toast({ title: '¡Lista familiar creada!', description: `El código de tu lista es ${newFamilyId}` });
     } else {
-      toast({ variant: 'destructive', title: 'Error', description: 'No se pudo crear la familia.' });
+      toast({ variant: 'destructive', title: 'Error', description: 'No se pudo crear la lista familiar.' });
     }
     setIsCreating(false);
   };
@@ -60,10 +60,10 @@ export default function SettingsSheet({
     setIsJoining(true);
     const success = await joinFamily(familyIdInput.trim());
     if (success) {
-      toast({ title: '¡Te has unido a la familia!', description: 'Tu lista se ha sincronizado.' });
+      toast({ title: '¡Te has unido a la lista!', description: 'Tu lista de la compra se ha sincronizado.' });
       onOpenChange(false);
     } else {
-      toast({ variant: 'destructive', title: 'Error', description: 'El código de familia no es válido o no existe.' });
+      toast({ variant: 'destructive', title: 'Error', description: 'El código no es válido o no existe.' });
     }
     setIsJoining(false);
   };
@@ -72,9 +72,9 @@ export default function SettingsSheet({
     setIsLeaving(true);
     const success = await leaveFamily();
     if(success) {
-        toast({ title: 'Has abandonado la lista familiar', description: 'Has abandonado la lista familiar y tu lista ahora es local.' });
+        toast({ title: 'Has abandonado la lista familiar', description: 'Tu lista ahora es local.' });
     } else {
-        toast({ variant: 'destructive', title: 'Error', description: 'No se pudo abandonar la familia.' });
+        toast({ variant: 'destructive', title: 'Error', description: 'No se pudo abandonar la lista.' });
     }
     setIsLeaving(false);
     setIsConfirmingLeave(false);
@@ -83,7 +83,7 @@ export default function SettingsSheet({
   const handleCopyToClipboard = () => {
     if (familyId) {
       navigator.clipboard.writeText(familyId);
-      toast({ title: '¡Copiado!', description: 'Código de familia copiado al portapapeles.' });
+      toast({ title: '¡Copiado!', description: 'Código de lista copiado al portapapeles.' });
     }
   };
 
@@ -104,7 +104,7 @@ export default function SettingsSheet({
         <div className="py-6 space-y-6 max-w-sm mx-auto">
         {familyId ? (
             <div className="space-y-2">
-              <Label>Tu código de familia</Label>
+              <Label>El código de tu lista familiar</Label>
               {isConfirmingLeave ? (
                 <div className="flex gap-2">
                   <Button variant="destructive" onClick={handleLeaveFamily} disabled={isLeaving} className="w-full">
@@ -131,11 +131,11 @@ export default function SettingsSheet({
             <div className="space-y-4">
               <h3 className="font-semibold text-center">Compartir lista de la compra</h3>
               <div className="space-y-2">
-                <Label htmlFor="join-family">Unirse a una familia existente</Label>
+                <Label htmlFor="join-family">Unirse a una lista familiar</Label>
                 <div className="flex items-center gap-2">
                   <Input
                     id="join-family"
-                    placeholder="Introduce el código"
+                    placeholder="Introduce el código de la lista"
                     value={familyIdInput}
                     onChange={(e) => setFamilyIdInput(e.target.value)}
                     disabled={isJoining || isCreating}
@@ -152,7 +152,7 @@ export default function SettingsSheet({
               </div>
               <Button onClick={handleCreateFamily} disabled={isJoining || isCreating} className="w-full">
                 {isCreating ? <Loader2 className="animate-spin mr-2" /> : null}
-                Crear una nueva familia
+                Crear una nueva lista familiar
               </Button>
             </div>
           )}

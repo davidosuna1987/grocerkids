@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator'
 import { useSettings } from '@/contexts/settings-context';
 import { IMAGE_PROVIDERS_MAP, VIEW_TYPES_MAP, THEMES_MAP, type ImageProvider, type ViewType, type Theme } from '@/types';
 import { Button } from '../ui/button';
@@ -23,7 +24,7 @@ import { Input } from '../ui/input';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useShoppingList } from '@/hooks/use-shopping-list';
-import { Loader2, Copy } from 'lucide-react';
+import { Loader2, Copy, Trash2 } from 'lucide-react';
 
 type SettingsSheetProps = {
   open: boolean;
@@ -34,11 +35,13 @@ export default function SettingsSheet({
   open,
   onOpenChange,
 }: SettingsSheetProps) {
-  const { provider, viewType, theme, familyId, setProvider, setViewType, setTheme, createNewFamily, joinFamily } = useSettings();
+  const { provider, viewType, theme, familyId, setProvider, setViewType, setTheme, createNewFamily, joinFamily, leaveFamily } = useSettings();
   const { products } = useShoppingList();
   const [familyIdInput, setFamilyIdInput] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const { toast } = useToast();
 
   const handleCreateFamily = async () => {
@@ -65,6 +68,18 @@ export default function SettingsSheet({
     setIsJoining(false);
   };
 
+  const handleDeleteFamily = async () => {
+    setIsDeleting(true);
+    const success = await leaveFamily();
+    if(success) {
+        toast({ title: 'Familia eliminada', description: 'Has abandonado la familia y tu lista ahora es local.' });
+    } else {
+        toast({ variant: 'destructive', title: 'Error', description: 'No se pudo eliminar la familia.' });
+    }
+    setIsDeleting(false);
+    setIsConfirmingDelete(false);
+  };
+
   const handleCopyToClipboard = () => {
     if (familyId) {
       navigator.clipboard.writeText(familyId);
@@ -73,7 +88,12 @@ export default function SettingsSheet({
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={(isOpen) => {
+      onOpenChange(isOpen);
+      if (!isOpen) {
+        setIsConfirmingDelete(false); // Reset on close
+      }
+    }}>
       <SheetContent side="bottom" className="rounded-t-2xl">
         <SheetHeader className="text-center">
           <SheetTitle>Ajustes</SheetTitle>
@@ -82,19 +102,33 @@ export default function SettingsSheet({
           </SheetDescription>
         </SheetHeader>
         <div className="py-6 space-y-6 max-w-sm mx-auto">
-          {familyId ? (
+        {familyId ? (
             <div className="space-y-2">
               <Label>Tu código de familia</Label>
-              <div className="flex items-center gap-2">
-                <Input value={familyId} readOnly className="font-mono text-center" />
-                <Button size="icon" variant="outline" onClick={handleCopyToClipboard}>
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">Comparte este código con tu familia para usar la misma lista.</p>
+              {isConfirmingDelete ? (
+                <div className="flex gap-2">
+                  <Button variant="destructive" onClick={handleDeleteFamily} disabled={isDeleting} className="w-full">
+                    {isDeleting ? <Loader2 className="animate-spin" /> : 'Eliminar familia'}
+                  </Button>
+                  <Button variant="outline" onClick={() => setIsConfirmingDelete(false)} disabled={isDeleting} className="w-full">
+                    Cancelar
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                   <Button size="icon" variant="outline" onClick={() => setIsConfirmingDelete(true)}>
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                  <Input value={familyId} readOnly className="font-mono text-center" />
+                  <Button size="icon" variant="outline" onClick={handleCopyToClipboard}>
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">Comparte este código para usar la misma lista. Si la eliminas, tu lista pasará a ser local.</p>
             </div>
           ) : (
-            <div className="p-4 border rounded-lg space-y-4">
+            <div className="space-y-4">
               <h3 className="font-semibold text-center">Compartir lista de la compra</h3>
               <div className="space-y-2">
                 <Label htmlFor="join-family">Unirse a una familia existente</Label>
@@ -123,6 +157,8 @@ export default function SettingsSheet({
             </div>
           )}
 
+          <Separator />
+
           <div className="flex flex-col gap-2">
             <Label htmlFor="image-provider">Proveedor de imágenes</Label>
             <Select
@@ -136,39 +172,6 @@ export default function SettingsSheet({
                 <SelectItem value={IMAGE_PROVIDERS_MAP.google}>Google</SelectItem>
                 <SelectItem value={IMAGE_PROVIDERS_MAP.pexels}>Pexels</SelectItem>
                 <SelectItem value={IMAGE_PROVIDERS_MAP.pixabay}>Pixabay</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="view-type">Tipo de vista</Label>
-            <Select
-              value={viewType}
-              onValueChange={(value: ViewType) => setViewType(value)}
-            >
-              <SelectTrigger id="view-type">
-                <SelectValue placeholder="Seleccionar vista" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={VIEW_TYPES_MAP.list}>Lista</SelectItem>
-                <SelectItem value={VIEW_TYPES_MAP.grid}>Cuadrícula</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="theme">Tema de la app</Label>
-            <Select
-              value={theme}
-              onValueChange={(value: Theme) => setTheme(value)}
-            >
-              <SelectTrigger id="theme">
-                <SelectValue placeholder="Seleccionar tema" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={THEMES_MAP.light}>Claro</SelectItem>
-                <SelectItem value={THEMES_MAP.dark}>Oscuro</SelectItem>
-                <SelectItem value={THEMES_MAP.system}>Sistema</SelectItem>
               </SelectContent>
             </Select>
           </div>

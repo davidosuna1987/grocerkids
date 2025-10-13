@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { AppSettings, ImageProvider, IMAGE_PROVIDERS_MAP, ViewType, VIEW_TYPES_MAP, THEMES_MAP, Theme, IMAGE_PROVIDERS, VIEW_TYPES, THEMES } from '@/types';
 import { useTheme } from 'next-themes';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, deleteDoc } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 
 const SETTINGS_KEY = 'grocerkids-settings';
@@ -24,6 +24,7 @@ interface SettingsContextType {
   setTheme: (theme: Theme) => void;
   createNewFamily: (currentProducts: any[]) => Promise<string | null>;
   joinFamily: (familyId: string) => Promise<boolean>;
+  leaveFamily: () => Promise<boolean>;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -112,6 +113,23 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     }
   }, [firestore, setFamilyId]);
 
+  const leaveFamily = useCallback(async () => {
+    if (!firestore || !settings.familyId) return false;
+    const familyRef = doc(firestore, 'families', settings.familyId);
+    try {
+      // Optional: Delete the family document from Firestore.
+      // Be careful: this will delete the list for ALL members.
+      // A safer approach might be to just have the user "leave" without deleting the doc.
+      // For this implementation, we'll delete it as requested.
+      await deleteDoc(familyRef);
+      setFamilyId(null);
+      return true;
+    } catch (error) {
+      console.error("Error leaving/deleting family:", error);
+      return false;
+    }
+  }, [firestore, settings.familyId, setFamilyId]);
+
   return (
     <SettingsContext.Provider value={{
       provider: settings.provider,
@@ -123,6 +141,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
       setTheme,
       createNewFamily,
       joinFamily,
+      leaveFamily,
     }}>
       {children}
     </SettingsContext.Provider>

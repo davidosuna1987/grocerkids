@@ -59,7 +59,7 @@ export default function BottomNavigation({
           onClick={onClearClick}
           disabled={!hasProducts}
         >
-          <Trash2 className='!size-7' />
+          <Trash2 className='!size-4 md:!size-7' />
         </Button>
 
         <Button
@@ -68,9 +68,9 @@ export default function BottomNavigation({
           onClick={handleViewToggle}
         >
           {viewType === 'list' ? (
-            <Grid className="!size-7" />
+            <Grid className="!size-4 md:!size-7" />
           ) : (
-            <List className="!size-7" />
+            <List className="!size-4 md:!size-7" />
           )}
         </Button>
 
@@ -79,8 +79,8 @@ export default function BottomNavigation({
           className="text-card-foreground h-auto hover:bg-transparent"
           onClick={onUploadClick}
         >
-          <div className="flex justify-center items-center size-24 bg-primary rounded-full text-primary-foreground -mt-8 shadow-lg shadow-primary/30">
-            <Camera className='!size-10' />
+          <div className="flex justify-center items-center size-16 md:size-24 bg-primary rounded-full text-primary-foreground md:-mt-8 shadow-lg shadow-primary/30">
+            <Camera className='!size-7 md:!size-10' />
           </div>
         </Button>
 
@@ -89,7 +89,7 @@ export default function BottomNavigation({
           className="flex flex-col items-center text-muted-foreground h-auto hover:bg-transparent [&:hover>span]:text-primary [&:hover>svg]:text-primary"
           onClick={onSettingsClick}
         >
-          <Settings className="!size-7" />
+          <Settings className="!size-4 md:!size-7" />
         </Button>
         
         <Button
@@ -98,7 +98,7 @@ export default function BottomNavigation({
           onClick={handleShare}
           disabled={!familyId}
         >
-          <Share2 className='!size-7' />
+          <Share2 className='!size-4 md:!size-7' />
         </Button>
       </nav>
     </footer>

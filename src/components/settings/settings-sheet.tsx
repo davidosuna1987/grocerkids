@@ -63,7 +63,7 @@ export default function SettingsSheet({
       toast({ title: '¡Te has unido a la lista!', description: 'Tu lista de la compra se ha sincronizado.' });
       onOpenChange(false);
     } else {
-      toast({ variant: 'destructive', title: 'Error', description: 'El código no es válido o no existe.' });
+      toast({ variant: 'destructive', title: 'Error', description: 'El código introducido no es válido o no existe.' });
     }
     setIsJoining(false);
   };
@@ -74,7 +74,7 @@ export default function SettingsSheet({
     if (success) {
       toast({
         title: wasLastMember ? 'Lista familiar eliminada' : 'Has abandonado la lista familiar',
-        description: wasLastMember ? 'La lista ha sido eliminada permanentemente.' : 'Tu lista ahora es local.'
+        description: wasLastMember ? 'La lista ha sido eliminada permanentemente.' : 'Tu lista ahora es local y nadie más puede verla ni editarla.'
       });
     } else {
       toast({ variant: 'destructive', title: 'Error', description: 'No se pudo realizar la operación.' });
@@ -91,7 +91,8 @@ export default function SettingsSheet({
   };
   
   const isLastMember = membersCount <= 1;
-  const leaveButtonText = isLastMember ? 'Eliminar lista' : 'Abandonar lista';
+  const leaveButtonText = isLastMember ? 'Eliminar lista familiar' : 'Abandonar lista familiar';
+  const familyCodeText = isConfirmingLeave ? (isLastMember ? '¿Seguro que quieres eliminar la lista familiar?' : '¿Seguro que quieres abandonar la lista familiar?') : 'Código de tu lista familiar'
   const LeaveIcon = isLastMember ? Trash2 : LogOut;
 
 
@@ -112,11 +113,11 @@ export default function SettingsSheet({
         <div className="py-6 space-y-6 max-w-sm mx-auto">
         {familyId ? (
             <div className="space-y-2">
-              <Label>El código de tu lista familiar</Label>
+              <Label>{familyCodeText}</Label>
               {isConfirmingLeave ? (
                 <div className="flex flex-col sm:flex-row gap-2">
                   <Button variant="destructive" onClick={handleLeaveFamily} disabled={isLeaving} className="w-full">
-                    {isLeaving ? <Loader2 className="animate-spin" /> : <><LeaveIcon className="mr-2 h-4 w-4" />{leaveButtonText}</>}
+                    {isLeaving ? <Loader2 className="animate-spin" /> : leaveButtonText}
                   </Button>
                   <Button variant="outline" onClick={() => setIsConfirmingLeave(false)} disabled={isLeaving} className="w-full">
                     Cancelar
@@ -124,19 +125,19 @@ export default function SettingsSheet({
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                   <Button size="icon" variant="ghost" onClick={() => setIsConfirmingLeave(true)} className="text-muted-foreground hover:text-destructive">
+                   <Button size="icon" variant="ghost" onClick={() => setIsConfirmingLeave(true)} className="hover:bg-destructive border hover:border-destructive">
                     <LeaveIcon className="h-5 w-5" />
                   </Button>
                   <Input value={familyId} readOnly className="font-mono text-center flex-grow" />
-                  <Button size="icon" variant="ghost" onClick={handleCopyToClipboard} className="text-muted-foreground hover:text-primary">
+                  <Button size="icon" variant="ghost" onClick={handleCopyToClipboard} className="border hover:border-primary">
                     <Copy className="h-5 w-5" />
                   </Button>
                 </div>
               )}
               <p className="text-xs text-muted-foreground text-center px-2">
                 {isLastMember 
-                  ? 'Eres el último miembro. Si eliminas la lista, se borrará para siempre.' 
-                  : `Comparte este código para usar la misma lista. Hay ${membersCount} miembros.`
+                  ? 'Eres el último miembro. Si eliminas la lista, se borrará permanentemente pero siempre podrás crear una nueva.' 
+                  : `Comparte este código para usar la misma lista. Actualmente hay ${membersCount} miembros.`
                 }
               </p>
             </div>
@@ -148,7 +149,7 @@ export default function SettingsSheet({
                 <div className="flex items-center gap-2">
                   <Input
                     id="join-family"
-                    placeholder="Introduce el código de la lista"
+                    placeholder="Introduce el código de la lista familiar"
                     value={familyIdInput}
                     onChange={(e) => setFamilyIdInput(e.target.value)}
                     disabled={isJoining || isCreating}

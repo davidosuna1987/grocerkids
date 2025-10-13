@@ -24,7 +24,7 @@ import { Input } from '../ui/input';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useShoppingList } from '@/hooks/use-shopping-list';
-import { Loader2, Copy, Trash2 } from 'lucide-react';
+import { Loader2, Copy, LogOut } from 'lucide-react';
 
 type SettingsSheetProps = {
   open: boolean;
@@ -40,8 +40,8 @@ export default function SettingsSheet({
   const [familyIdInput, setFamilyIdInput] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
+  const [isConfirmingLeave, setIsConfirmingLeave] = useState(false);
   const { toast } = useToast();
 
   const handleCreateFamily = async () => {
@@ -68,16 +68,16 @@ export default function SettingsSheet({
     setIsJoining(false);
   };
 
-  const handleDeleteFamily = async () => {
-    setIsDeleting(true);
+  const handleLeaveFamily = async () => {
+    setIsLeaving(true);
     const success = await leaveFamily();
     if(success) {
-        toast({ title: 'Familia eliminada', description: 'Has abandonado la familia y tu lista ahora es local.' });
+        toast({ title: 'Has abandonado la familia', description: 'Has abandonado la familia y tu lista ahora es local.' });
     } else {
-        toast({ variant: 'destructive', title: 'Error', description: 'No se pudo eliminar la familia.' });
+        toast({ variant: 'destructive', title: 'Error', description: 'No se pudo abandonar la familia.' });
     }
-    setIsDeleting(false);
-    setIsConfirmingDelete(false);
+    setIsLeaving(false);
+    setIsConfirmingLeave(false);
   };
 
   const handleCopyToClipboard = () => {
@@ -91,7 +91,7 @@ export default function SettingsSheet({
     <Sheet open={open} onOpenChange={(isOpen) => {
       onOpenChange(isOpen);
       if (!isOpen) {
-        setIsConfirmingDelete(false); // Reset on close
+        setIsConfirmingLeave(false); // Reset on close
       }
     }}>
       <SheetContent side="bottom" className="rounded-t-2xl">
@@ -105,19 +105,19 @@ export default function SettingsSheet({
         {familyId ? (
             <div className="space-y-2">
               <Label>Tu código de familia</Label>
-              {isConfirmingDelete ? (
+              {isConfirmingLeave ? (
                 <div className="flex gap-2">
-                  <Button variant="destructive" onClick={handleDeleteFamily} disabled={isDeleting} className="w-full">
-                    {isDeleting ? <Loader2 className="animate-spin" /> : 'Eliminar familia'}
+                  <Button variant="destructive" onClick={handleLeaveFamily} disabled={isLeaving} className="w-full">
+                    {isLeaving ? <Loader2 className="animate-spin" /> : 'Abandonar lista familiar'}
                   </Button>
-                  <Button variant="outline" onClick={() => setIsConfirmingDelete(false)} disabled={isDeleting} className="w-full">
+                  <Button variant="outline" onClick={() => setIsConfirmingLeave(false)} disabled={isLeaving} className="w-full">
                     Cancelar
                   </Button>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                   <Button size="icon" variant="outline" onClick={() => setIsConfirmingDelete(true)}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
+                   <Button size="icon" variant="outline" onClick={() => setIsConfirmingLeave(true)}>
+                    <LogOut className="h-4 w-4 text-destructive" />
                   </Button>
                   <Input value={familyId} readOnly className="font-mono text-center" />
                   <Button size="icon" variant="outline" onClick={handleCopyToClipboard}>
@@ -125,7 +125,7 @@ export default function SettingsSheet({
                   </Button>
                 </div>
               )}
-              <p className="text-xs text-muted-foreground">Comparte este código para usar la misma lista. Si la eliminas, tu lista pasará a ser local.</p>
+              <p className="text-xs text-muted-foreground">Comparte este código para usar la misma lista. Si abandonas, tu lista pasará a ser local.</p>
             </div>
           ) : (
             <div className="space-y-4">

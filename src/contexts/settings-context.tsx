@@ -114,21 +114,17 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
   }, [firestore, setFamilyId]);
 
   const leaveFamily = useCallback(async () => {
-    if (!firestore || !settings.familyId) return false;
-    const familyRef = doc(firestore, 'families', settings.familyId);
+    if (!settings.familyId) return false;
+    // We just remove the familyId from local settings.
+    // We don't delete the document from firestore, so other family members are not affected.
     try {
-      // Optional: Delete the family document from Firestore.
-      // Be careful: this will delete the list for ALL members.
-      // A safer approach might be to just have the user "leave" without deleting the doc.
-      // For this implementation, we'll delete it as requested.
-      await deleteDoc(familyRef);
       setFamilyId(null);
       return true;
     } catch (error) {
-      console.error("Error leaving/deleting family:", error);
+      console.error("Error leaving family:", error);
       return false;
     }
-  }, [firestore, settings.familyId, setFamilyId]);
+  }, [settings.familyId, setFamilyId]);
 
   return (
     <SettingsContext.Provider value={{

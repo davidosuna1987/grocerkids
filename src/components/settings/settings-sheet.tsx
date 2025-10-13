@@ -24,7 +24,7 @@ import { Input } from '../ui/input';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useShoppingList } from '@/hooks/use-shopping-list';
-import { Loader2, Copy, LogOut } from 'lucide-react';
+import { Loader2, Copy, LogOut, Trash2 } from 'lucide-react';
 
 type SettingsSheetProps = {
   open: boolean;
@@ -35,7 +35,7 @@ export default function SettingsSheet({
   open,
   onOpenChange,
 }: SettingsSheetProps) {
-  const { provider, familyId, setProvider, createNewFamily, joinFamily, leaveFamily } = useSettings();
+  const { provider, familyId, membersCount, setProvider, createNewFamily, joinFamily, leaveFamily } = useSettings();
   const { products } = useShoppingList();
   const [familyIdInput, setFamilyIdInput] = useState('');
   const [isCreating, setIsCreating] = useState(false);
@@ -70,11 +70,15 @@ export default function SettingsSheet({
 
   const handleLeaveFamily = async () => {
     setIsLeaving(true);
+    const isLastMember = membersCount <= 1;
     const success = await leaveFamily();
     if(success) {
-        toast({ title: 'Has abandonado la lista familiar', description: 'Tu lista ahora es local.' });
+        toast({ 
+          title: isLastMember ? 'Lista familiar eliminada' : 'Has abandonado la lista familiar', 
+          description: isLastMember ? 'La lista ha sido eliminada permanentemente.' : 'Tu lista ahora es local.' 
+        });
     } else {
-        toast({ variant: 'destructive', title: 'Error', description: 'No se pudo abandonar la lista.' });
+        toast({ variant: 'destructive', title: 'Error', description: 'No se pudo realizar la operación.' });
     }
     setIsLeaving(false);
     setIsConfirmingLeave(false);
@@ -86,6 +90,11 @@ export default function SettingsSheet({
       toast({ title: '¡Copiado!', description: 'Código de lista copiado al portapapeles.' });
     }
   };
+  
+  const isLastMember = membersCount <= 1;
+  const leaveButtonText = isLastMember ? 'Eliminar lista' : 'Abandonar lista familiar';
+  const LeaveIcon = isLastMember ? Trash2 : LogOut;
+
 
   return (
     <Sheet open={open} onOpenChange={(isOpen) => {
@@ -108,7 +117,7 @@ export default function SettingsSheet({
               {isConfirmingLeave ? (
                 <div className="flex gap-2">
                   <Button variant="destructive" onClick={handleLeaveFamily} disabled={isLeaving} className="w-full">
-                    {isLeaving ? <Loader2 className="animate-spin" /> : 'Abandonar lista familiar'}
+                    {isLeaving ? <Loader2 className="animate-spin" /> : leaveButtonText}
                   </Button>
                   <Button variant="outline" onClick={() => setIsConfirmingLeave(false)} disabled={isLeaving} className="w-full">
                     Cancelar
@@ -117,7 +126,7 @@ export default function SettingsSheet({
               ) : (
                 <div className="flex items-center gap-2">
                    <Button size="icon" variant="outline" onClick={() => setIsConfirmingLeave(true)}>
-                    <LogOut className="h-4 w-4 text-destructive" />
+                    <LeaveIcon className="h-4 w-4 text-destructive" />
                   </Button>
                   <Input value={familyId} readOnly className="font-mono text-center" />
                   <Button size="icon" variant="outline" onClick={handleCopyToClipboard}>
@@ -125,7 +134,12 @@ export default function SettingsSheet({
                   </Button>
                 </div>
               )}
-              <p className="text-xs text-muted-foreground">Comparte este código para usar la misma lista. Si abandonas, tu lista pasará a ser local.</p>
+              <p className="text-xs text-muted-foreground">
+                {isLastMember 
+                  ? 'Eres el último miembro. Si eliminas la lista, se borrará para siempre.' 
+                  : `Comparte este código para usar la misma lista. Hay ${membersCount} miembros.`
+                }
+              </p>
             </div>
           ) : (
             <div className="space-y-4">

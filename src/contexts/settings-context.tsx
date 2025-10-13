@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { AppSettings, ImageProvider, IMAGE_PROVIDERS_MAP, ViewType, VIEW_TYPES_MAP, THEMES_MAP, Theme, IMAGE_PROVIDERS, VIEW_TYPES, THEMES } from '@/types';
 import { useTheme } from 'next-themes';
-import { doc, setDoc, getDoc, deleteDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, deleteDoc, onSnapshot, runTransaction, increment } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 
 const SETTINGS_KEY = 'grocerkids-settings';
@@ -19,6 +19,7 @@ interface SettingsContextType {
   viewType: ViewType;
   theme: Theme;
   familyId: string | null | undefined;
+  membersCount: number;
   setProvider: (provider: ImageProvider) => void;
   setViewType: (viewType: ViewType) => void;
   setTheme: (theme: Theme) => void;
@@ -35,6 +36,7 @@ interface SettingsProviderProps {
 
 export function SettingsProvider({ children }: SettingsProviderProps) {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+  const [membersCount, setMembersCount] = useState(0);
   const { setTheme: setNextTheme } = useTheme();
   const firestore = useFirestore();
 
@@ -64,6 +66,24 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
       console.error('Failed to save settings to localStorage', error);
     }
   }, [settings]);
+  
+  useEffect(() => {
+    if (settings.familyId && firestore) {
+      const familyRef = doc(firestore, 'families', settings.familyId);
+      const unsubscribe = onSnapshot(familyRef, (docSnap) => {
+        if (docSnap.exists()) {
+          setMembersCount(docSnap.data().members || 0);
+        } else {
+          setMembersCount(0);
+          // If doc is deleted from another client, reset local state
+          setFamilyId(null);
+        }
+      });
+      return () => unsubscribe();
+    } else {
+        setMembersCount(0);
+    }
+  }, [settings.familyId, firestore]);
 
   const setProvider = useCallback((provider: ImageProvider) => {
     setSettings((prev) => ({ ...prev, provider }));
@@ -87,7 +107,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     const newFamilyId = crypto.randomUUID().split('-')[0];
     const familyRef = doc(firestore, 'families', newFamilyId);
     try {
-      await setDoc(familyRef, { id: newFamilyId, shoppingList: currentProducts });
+      await setDoc(familyRef, { id: newFamilyId, shoppingList: currentProducts, members: 1 });
       setFamilyId(newFamilyId);
       return newFamilyId;
     } catch (error) {
@@ -97,34 +117,40 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
   }, [firestore, setFamilyId]);
 
   const joinFamily = useCallback(async (familyIdToJoin: string) => {
-    if (!firestore) return false;
+    if (!firestore || settings.familyId === familyIdToJoin) return false;
     const familyRef = doc(firestore, 'families', familyIdToJoin);
     try {
-      const docSnap = await getDoc(familyRef);
-      if (docSnap.exists()) {
-        setFamilyId(familyIdToJoin);
-        // The useShoppingList hook will handle syncing the list
-        return true;
-      }
-      return false;
+      await runTransaction(firestore, async (transaction) => {
+        const familyDoc = await transaction.get(familyRef);
+        if (!familyDoc.exists()) {
+            throw new Error("Document does not exist!");
+        }
+        transaction.update(familyRef, { members: increment(1) });
+      });
+      setFamilyId(familyIdToJoin);
+      return true;
     } catch (error) {
       console.error("Error joining family:", error);
       return false;
     }
-  }, [firestore, setFamilyId]);
+  }, [firestore, setFamilyId, settings.familyId]);
 
   const leaveFamily = useCallback(async () => {
-    if (!settings.familyId) return false;
-    // We just remove the familyId from local settings.
-    // We don't delete the document from firestore, so other family members are not affected.
+    if (!settings.familyId || !firestore) return false;
+    const familyRef = doc(firestore, 'families', settings.familyId);
     try {
-      setFamilyId(null);
-      return true;
+        if(membersCount <= 1) {
+            await deleteDoc(familyRef);
+        } else {
+            await setDoc(familyRef, { members: increment(-1) }, { merge: true });
+        }
+        setFamilyId(null);
+        return true;
     } catch (error) {
-      console.error("Error leaving family:", error);
-      return false;
+        console.error("Error leaving family:", error);
+        return false;
     }
-  }, [settings.familyId, setFamilyId]);
+}, [settings.familyId, firestore, setFamilyId, membersCount]);
 
   return (
     <SettingsContext.Provider value={{
@@ -132,6 +158,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
       viewType: settings.viewType,
       theme: settings.theme,
       familyId: settings.familyId,
+      membersCount,
       setProvider,
       setViewType,
       setTheme,

@@ -17,7 +17,7 @@ export default function ProductCard({ product, onToggleBought, onDelete, viewMod
   const uniqueId = `item-${product.id}`;
   return (
     <div className={cn(
-      "bg-card rounded-2xl shadow-sm transition-all duration-300 relative group",
+      "bg-card rounded-2xl shadow-sm transition-all duration-300 relative group overflow-hidden",
       viewMode === 'list' ? 'flex items-center gap-4 p-3' : 'flex flex-col p-4 gap-2'
     )}>
        <input 
@@ -45,18 +45,23 @@ export default function ProductCard({ product, onToggleBought, onDelete, viewMod
           <p className="font-semibold text-foreground">{product.name}</p>
         </div>
       </label>
-       <div className={cn("absolute transition-opacity", viewMode === 'list' ? 'top-1 right-1' : 'top-2 right-2')}>
+       <div className={cn("absolute", viewMode === 'grid' ? 'top-2 right-2' : 'inset-y-0 right-0')}>
           <Button
-            size="icon"
+            size={viewMode === 'list' ? 'default' : 'icon'}
             variant="destructive"
-            className="h-8 w-8 rounded-full"
+            className={cn(
+              'rounded-full',
+              viewMode === 'list' 
+                ? 'h-full w-14 rounded-l-none rounded-r-xl'
+                : 'h-8 w-8'
+            )}
             onClick={(e) => {
               e.stopPropagation();
               onDelete(product.id);
             }}
             aria-label={`Eliminar ${product.name}`}
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-5 w-5" />
           </Button>
         </div>
     </div>

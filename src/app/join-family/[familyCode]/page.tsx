@@ -24,9 +24,9 @@ export async function generateMetadata({ params }: JoinFamilyParams) {
       url: `${baseUrl}/join-family/${familyCode}`,
       images: [
         {
-          url: `${baseUrl}/join-family/${familyCode}/opengraph-image.png`,
-          width: 1200,
-          height: 630,
+          url: `${baseUrl}/og-image.png`,
+          width: 830,
+          height: 301,
           alt: `Invitación a ${name}`,
         },
       ],
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: JoinFamilyParams) {
       card: 'summary_large_image',
       title: `Únete a ${name}`,
       description: 'Comparte la lista familiar y colabora en tiempo real 🛒',
-      images: [`${baseUrl}/join-family/${familyCode}/opengraph-image.png`],
+      images: [`${baseUrl}/og-image.png`],
     },
   };
 }

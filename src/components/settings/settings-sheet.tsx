@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator'
-import { useSettings } from '@/contexts/settings-context';
+import { JoinFamilyLink, useSettings } from '@/contexts/settings-context';
 import { IMAGE_PROVIDERS_MAP, type ImageProvider } from '@/types';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -35,7 +35,7 @@ export default function SettingsSheet({
   open,
   onOpenChange,
 }: SettingsSheetProps) {
-  const { provider, familyId, membersCount, setProvider, createNewFamily, joinFamily, leaveFamily } = useSettings();
+  const { provider, familyId, membersCount, setProvider, createNewFamily, joinFamily, leaveFamily, generateJoinFamilyLink } = useSettings();
   const { products } = useShoppingList();
   const [familyIdInput, setFamilyIdInput] = useState('');
   const [isCreating, setIsCreating] = useState(false);
@@ -83,10 +83,13 @@ export default function SettingsSheet({
     setIsConfirmingLeave(false);
   };
 
-  const handleCopyToClipboard = () => {
+  const handleCopyToClipboard = async () => {
     if (familyId) {
-      navigator.clipboard.writeText(familyId);
-      toast({ title: '¡Copiado!', description: 'Código de lista copiado al portapapeles.' });
+      const joinFamilyLink: JoinFamilyLink | null = generateJoinFamilyLink(familyId);
+      if (joinFamilyLink) {
+        await navigator.clipboard.writeText(`¡Únete a mi lista de la compra!\n\n${joinFamilyLink.url}`);
+        toast({ title: '¡Copiado!', description: 'El enlace para unirse a la lista se ha copiado al portapapeles.' });
+      }
     }
   };
   

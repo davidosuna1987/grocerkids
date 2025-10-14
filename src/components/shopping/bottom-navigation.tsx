@@ -6,7 +6,6 @@ import { JoinFamilyLink, useSettings } from '@/contexts/settings-context';
 import { VIEW_TYPES_MAP } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { useShoppingList } from '@/hooks/use-shopping-list';
-import { useEffect, useState } from 'react';
 
 type BottomNavigationProps = {
   onUploadClick: () => void;
@@ -43,7 +42,7 @@ export default function BottomNavigation({
     if (familyId) {
       const joinFamilyLink: JoinFamilyLink | null = generateJoinFamilyLink(familyId);
       if (joinFamilyLink) {
-        await navigator.clipboard.writeText(joinFamilyLink.url);
+        await navigator.clipboard.writeText(`¡Únete a mi lista de la compra!\n\n${joinFamilyLink.url}`);
         toast({ title: '¡Copiado!', description: 'El enlace para unirse a la lista se ha copiado al portapapeles.' });
       }
     }

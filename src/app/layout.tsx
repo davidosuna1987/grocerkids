@@ -23,6 +23,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=PT+Sans:wght@400;700&display=swap" rel="stylesheet" />
         <meta name="apple-mobile-web-app-title" content="Grocer Kids" />
+        <meta property="og:image" content="https://grocerkids.vercel.app/api/og" />
       </head>
       <body className={cn("font-body antialiased", "min-h-screen bg-background")}>
         <FirebaseClientProvider>

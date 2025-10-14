@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: JoinFamilyParams) {
       url: `${baseUrl}/join-family/${familyCode}`,
       images: [
         {
-          url: `${baseUrl}/og-image.png`,
+          url: `${baseUrl}/api/og?familyCode=${familyCode}`,
           width: 830,
           height: 301,
           alt: `Invitación a ${name}`,
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: JoinFamilyParams) {
       card: 'summary_large_image',
       title: `Únete a ${name}`,
       description: 'Comparte la lista familiar y colabora en tiempo real 🛒',
-      images: [`${baseUrl}/og-image.png`],
+      images: [`${baseUrl}/api/og?familyCode=${familyCode}`],
     },
   };
 }

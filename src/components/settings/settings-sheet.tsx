@@ -24,7 +24,7 @@ import { Input } from '../ui/input';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useShoppingList } from '@/hooks/use-shopping-list';
-import { Loader2, Copy, LogOut, Trash2 } from 'lucide-react';
+import { Loader2, Share2, LogOut, Trash2 } from 'lucide-react';
 
 type SettingsSheetProps = {
   open: boolean;
@@ -35,20 +35,37 @@ export default function SettingsSheet({
   open,
   onOpenChange,
 }: SettingsSheetProps) {
-  const { provider, familyId, membersCount, setProvider, createNewFamily, joinFamily, leaveFamily, generateJoinFamilyLink } = useSettings();
+  const {
+    provider,
+    familyId,
+    familyName,
+    membersCount,
+    setProvider,
+    createNewFamily,
+    joinFamily,
+    leaveFamily,
+    generateJoinFamilyLink
+  } = useSettings();
   const { products } = useShoppingList();
   const [familyIdInput, setFamilyIdInput] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
+  const [newFamilyName, setNewFamilyName] = useState('');
   const [isConfirmingLeave, setIsConfirmingLeave] = useState(false);
   const { toast } = useToast();
 
   const handleCreateFamily = async () => {
+    if(!newFamilyName.trim()) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Por favor, dale un nombre a tu lista.' });
+      return;
+    }
+    
     setIsCreating(true);
-    const newFamilyId = await createNewFamily(products);
+    const newFamilyId = await createNewFamily(products, newFamilyName);
     if (newFamilyId) {
-      toast({ title: '¡Lista familiar creada!', description: `El código de tu lista es ${newFamilyId}` });
+      toast({ title: '¡Lista familiar creada!', description: `El código para unirse es ${newFamilyId}` });
+      setNewFamilyName('');
     } else {
       toast({ variant: 'destructive', title: 'Error', description: 'No se pudo crear la lista familiar.' });
     }
@@ -60,25 +77,14 @@ export default function SettingsSheet({
     setIsJoining(true);
     const success = await joinFamily(familyIdInput.trim());
     if (success) {
-      toast({ title: '¡Te has unido a la lista!', description: 'Tu lista de la compra se ha sincronizado.' });
       onOpenChange(false);
-    } else {
-      toast({ variant: 'destructive', title: 'Error', description: 'El código introducido no es válido o no existe.' });
     }
     setIsJoining(false);
   };
 
   const handleLeaveFamily = async () => {
     setIsLeaving(true);
-    const { success, wasLastMember } = await leaveFamily();
-    if (success) {
-      toast({
-        title: wasLastMember ? 'Lista familiar eliminada' : 'Has abandonado la lista familiar',
-        description: wasLastMember ? 'La lista ha sido eliminada permanentemente.' : 'Tu lista ahora es local y nadie más puede verla ni editarla.'
-      });
-    } else {
-      toast({ variant: 'destructive', title: 'Error', description: 'No se pudo realizar la operación.' });
-    }
+    await leaveFamily();
     setIsLeaving(false);
     setIsConfirmingLeave(false);
   };
@@ -87,15 +93,17 @@ export default function SettingsSheet({
     if (familyId) {
       const joinFamilyLink: JoinFamilyLink | null = generateJoinFamilyLink(familyId);
       if (joinFamilyLink) {
-        await navigator.clipboard.writeText(`¡Únete a mi lista de la compra!\n\n${joinFamilyLink.url}`);
+        await navigator.clipboard.writeText(`¡Únete a la lista "${familyName}" en Grocer Kids!\n\n${joinFamilyLink.url}`);
         toast({ title: '¡Copiado!', description: 'El enlace para unirse a la lista se ha copiado al portapapeles.' });
       }
     }
   };
   
   const isLastMember = membersCount <= 1;
-  const leaveButtonText = isLastMember ? 'Eliminar lista familiar' : 'Abandonar lista familiar';
-  const familyCodeText = isConfirmingLeave ? (isLastMember ? '¿Seguro que quieres eliminar la lista familiar?' : '¿Seguro que quieres abandonar la lista familiar?') : 'Código de tu lista familiar'
+  const leaveButtonText = isLastMember ? 'Eliminar lista' : 'Abandonar lista';
+  const familyCodeText = isConfirmingLeave 
+    ? (isLastMember ? '¿Seguro que quieres eliminar la lista?' : '¿Seguro que quieres abandonar la lista?') 
+    : `Estás en la lista: ${familyName || '...'}`;
   const LeaveIcon = isLastMember ? Trash2 : LogOut;
 
 
@@ -131,16 +139,16 @@ export default function SettingsSheet({
                    <Button size="icon" variant="ghost" onClick={() => setIsConfirmingLeave(true)} className="hover:bg-destructive border hover:border-destructive">
                     <LeaveIcon className="h-5 w-5" />
                   </Button>
-                  <Input value={familyId} readOnly className="font-mono text-center flex-grow cursor-pointer hover:border-primary" onClick={handleCopyToClipboard} />
+                  <Input value={`CÓDIGO: ${familyId}`} readOnly className="font-mono text-center flex-grow cursor-pointer hover:border-primary" onClick={handleCopyToClipboard} />
                   <Button size="icon" variant="ghost" onClick={handleCopyToClipboard} className="border hover:border-primary">
-                    <Copy className="h-5 w-5" />
+                    <Share2 className="h-5 w-5" />
                   </Button>
                 </div>
               )}
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground text-center">
                 {isLastMember 
-                  ? 'Eres el único miembro de esta lista. Si eliminas la lista, se borrará permanentemente pero siempre podrás crear una nueva.' 
-                  : `Comparte este código para usar la misma lista. Actualmente hay ${membersCount} miembros.`
+                  ? 'Eres la única persona en esta lista.' 
+                  : `Hay ${membersCount} personas en esta lista.`
                 }
               </p>
             </div>
@@ -148,7 +156,7 @@ export default function SettingsSheet({
             <div className="space-y-4">
               <h3 className="font-semibold text-center">Compartir lista de la compra</h3>
               <div className="space-y-2">
-                <Label htmlFor="join-family">Unirse a una lista familiar</Label>
+                <Label htmlFor="join-family">Unirse a una lista existente</Label>
                 <div className="flex items-center gap-2">
                   <Input
                     id="join-family"
@@ -167,10 +175,16 @@ export default function SettingsSheet({
                 <span className="flex-shrink mx-4 text-muted-foreground text-xs">O</span>
                 <div className="flex-grow border-t"></div>
               </div>
-              <Button onClick={handleCreateFamily} disabled={isJoining || isCreating} className="w-full">
-                {isCreating ? <Loader2 className="animate-spin mr-2" /> : null}
-                Crear una nueva lista familiar
-              </Button>
+              <div className="space-y-2">
+                <Label htmlFor="create-family">Crear una nueva lista</Label>
+                <div className="flex flex-col gap-2">
+                  <Input id="create-family" value={newFamilyName} placeholder="Nombre de la lista (ej: Compra Semanal)" className="font-sans text-center flex-grow" onChange={(e) => setNewFamilyName(e.target.value)} />
+                  <Button onClick={handleCreateFamily} disabled={isJoining || isCreating} className="w-full">
+                    {isCreating ? <Loader2 className="animate-spin mr-2" /> : null}
+                    Crear lista familiar
+                  </Button>
+                </div>
+              </div>
             </div>
           )}
 

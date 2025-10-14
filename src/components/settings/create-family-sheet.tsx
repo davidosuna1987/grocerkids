@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -12,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { useSettings } from '@/contexts/settings-context';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useShoppingList } from '@/hooks/use-shopping-list';
 import { Loader2 } from 'lucide-react';
@@ -65,6 +66,12 @@ export default function CreateFamilySheet({ open, onOpenChange }: CreateFamilySh
     }
     onOpenChange(isOpen);
   };
+  
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    handleCreateFamily();
+  };
+
 
   return (
     <Sheet open={open} onOpenChange={handleSheetOpenChange}>
@@ -75,7 +82,7 @@ export default function CreateFamilySheet({ open, onOpenChange }: CreateFamilySh
             Dale un nombre a tu lista para poder compartirla con otros.
           </SheetDescription>
         </SheetHeader>
-        <div className="py-6 max-w-sm mx-auto space-y-4">
+        <form onSubmit={handleSubmit} className="py-6 max-w-sm mx-auto space-y-4">
           <div className="space-y-2">
             <Label htmlFor="create-family" className="sr-only">Nombre de la lista</Label>
             <div className="flex flex-col gap-2">
@@ -89,13 +96,13 @@ export default function CreateFamilySheet({ open, onOpenChange }: CreateFamilySh
               />
             </div>
           </div>
-        </div>
-        <SheetFooter className="max-w-sm mx-auto">
-          <Button onClick={handleCreateFamily} disabled={isCreating || !newFamilyName.trim()} className="w-full">
-            {isCreating ? <Loader2 className="animate-spin mr-2" /> : null}
-            Crear y compartir
-          </Button>
-        </SheetFooter>
+          <SheetFooter className="max-w-sm mx-auto">
+            <Button type="submit" disabled={isCreating || !newFamilyName.trim()} className="w-full">
+              {isCreating ? <Loader2 className="animate-spin mr-2" /> : null}
+              Crear y compartir
+            </Button>
+          </SheetFooter>
+        </form>
       </SheetContent>
     </Sheet>
   );

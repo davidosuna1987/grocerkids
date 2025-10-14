@@ -12,6 +12,7 @@
 
 ¿Cansados de las compras aburridas? Grocer Kids os ayuda a involucrar a vuestros hijos de una manera educativa y entretenida.
 
+- **Sincronízate:** Comparte tu lista para sincronizarla con otras personas.
 - **Menos estrés, más diversión:** Transformad una tarea rutinaria en un momento de conexión familiar.
 - **Fomenta la autonomía:** Dejad que vuestros peques se sientan responsables y orgullosos de ayudar.
 - **Aprendizaje visual:** Con imágenes para cada producto, los niños que aún no leen pueden participar sin problemas.
@@ -32,6 +33,7 @@
 
 ### 🚀 Características Principales
 
+- **Lista sincronizada en tiempo real:** Comparte tu lista de la compra y modificadla en tiempo real desde distintos dispositivos.
 - **Lista de la compra visual:** Cada producto tiene su propia imagen, ¡fácil de reconocer!
 - **Añadir productos fácilmente:** Usa el buscador para añadir nuevos artículos.
 - **Modo Lista o Cuadrícula:** Elige cómo prefieres ver tus productos.
@@ -46,7 +48,8 @@
 ### ¿Cómo Empezar?
 
 1.  **Añade productos:** Escribe "manzanas" o "leche" en la barra superior.
-2.  **Usa la cámara:** Toca el botón de la cámara para subir o hacer una foto de tu lista.
-3.  **Gestiona tu lista:** Marca los productos como comprados o elimínalos si ya no los necesitas.
-4.  **Cambia la vista:** Usa el botón de cuadrícula/lista para organizar los productos a tu gusto.
-5.  **¡A comprar!** Cuando la lista esté completa, ¡es hora de ir al supermercado!
+2.  **Comparte tu lista:** Dale al botón de compartir para copiar el enlace a tu lista.
+3.  **Usa la cámara:** Toca el botón de la cámara para subir o hacer una foto de tu lista.
+4.  **Gestiona tu lista:** Marca los productos como comprados o elimínalos si ya no los necesitas.
+5.  **Cambia la vista:** Usa el botón de cuadrícula/lista para organizar los productos a tu gusto.
+6.  **¡A comprar!** Cuando la lista esté completa, ¡es hora de ir al supermercado!

@@ -11,6 +11,7 @@ type BottomNavigationProps = {
   onUploadClick: () => void;
   onClearClick: () => void;
   onSettingsClick: () => void;
+  onCreateFamilyClick: () => void;
   hasProducts: boolean;
 };
 
@@ -18,11 +19,11 @@ export default function BottomNavigation({
   onUploadClick,
   onClearClick,
   onSettingsClick,
+  onCreateFamilyClick,
   hasProducts,
 }: BottomNavigationProps) {
   const { toast } = useToast();
-  const { products } = useShoppingList();
-  const { viewType, setViewType, createNewFamily, familyId, generateJoinFamilyLink } = useSettings();
+  const { viewType, setViewType, familyId, generateJoinFamilyLink } = useSettings();
 
   const handleViewToggle = () => {
     const newViewType = viewType === VIEW_TYPES_MAP.list ? VIEW_TYPES_MAP.grid : VIEW_TYPES_MAP.list;
@@ -30,11 +31,10 @@ export default function BottomNavigation({
   };
 
   const handleShare = async () => {
-    if(familyId) {
+    if (familyId) {
       await copyToClipboard(familyId);
     } else {
-      const newFamilyId = await createNewFamily(products);
-      await copyToClipboard(newFamilyId);
+      onCreateFamilyClick();
     }
   }
   
@@ -85,17 +85,17 @@ export default function BottomNavigation({
         <Button
           variant="ghost"
           className="flex flex-col items-center text-muted-foreground h-auto hover:bg-transparent [&:hover>span]:text-primary [&:hover>svg]:text-primary"
-          onClick={handleShare}
+          onClick={onSettingsClick}
         >
-          <Share2 className='!size-6 sm:!size-7' />
+          <Settings className="!size-6 sm:!size-7" />
         </Button>
 
         <Button
           variant="ghost"
           className="flex flex-col items-center text-muted-foreground h-auto hover:bg-transparent [&:hover>span]:text-primary [&:hover>svg]:text-primary"
-          onClick={onSettingsClick}
+          onClick={handleShare}
         >
-          <Settings className="!size-6 sm:!size-7" />
+          <Share2 className='!size-6 sm:!size-7' />
         </Button>
       </nav>
     </footer>

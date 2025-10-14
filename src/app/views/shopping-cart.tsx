@@ -12,6 +12,7 @@ import LoadingSkeleton from '@/components/shopping/loading-skeleton';
 import BottomNavigation from '@/components/shopping/bottom-navigation';
 import { useConfetti } from '@/hooks/use-confetti';
 import SettingsSheet from '@/components/settings/settings-sheet';
+import CreateFamilySheet from '@/components/settings/create-family-sheet';
 import { useSettings } from '@/contexts/settings-context';
 import NavbarTop from '@/components/layout/navbar-top';
 import { Confetti } from '@/components/effects/confetti';
@@ -32,6 +33,7 @@ export default function ShoppingCart() {
   const [isCelebrationSheetOpen, setCelebrationSheetOpen] =
     React.useState(false);
   const [isSettingsSheetOpen, setSettingsSheetOpen] = React.useState(false);
+  const [isCreateFamilySheetOpen, setCreateFamilySheetOpen] = React.useState(false);
 
   const allProductsBought =
     products.length > 0 && products.every(p => p.bought);
@@ -67,6 +69,15 @@ export default function ShoppingCart() {
       <SettingsSheet
         open={isSettingsSheetOpen}
         onOpenChange={setSettingsSheetOpen}
+        onCreateFamilyClick={() => {
+          setSettingsSheetOpen(false);
+          setCreateFamilySheetOpen(true);
+        }}
+      />
+      
+      <CreateFamilySheet
+        open={isCreateFamilySheetOpen}
+        onOpenChange={setCreateFamilySheetOpen}
       />
 
       <ClearListSheet
@@ -109,6 +120,7 @@ export default function ShoppingCart() {
         onUploadClick={() => setUploadDialogOpen(true)}
         onClearClick={() => setClearListSheetOpen(true)}
         onSettingsClick={() => setSettingsSheetOpen(true)}
+        onCreateFamilyClick={() => setCreateFamilySheetOpen(true)}
         hasProducts={products.length > 0}
       />
     </div>

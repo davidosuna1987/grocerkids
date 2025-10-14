@@ -6,7 +6,6 @@ import {
   SheetHeader,
   SheetTitle,
   SheetDescription,
-  SheetFooter,
 } from '@/components/ui/sheet';
 import { Label } from '@/components/ui/label';
 import {
@@ -23,17 +22,18 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { useShoppingList } from '@/hooks/use-shopping-list';
 import { Loader2, Share2, LogOut, Trash2 } from 'lucide-react';
 
 type SettingsSheetProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onCreateFamilyClick: () => void;
 };
 
 export default function SettingsSheet({
   open,
   onOpenChange,
+  onCreateFamilyClick,
 }: SettingsSheetProps) {
   const {
     provider,
@@ -41,36 +41,15 @@ export default function SettingsSheet({
     familyName,
     membersCount,
     setProvider,
-    createNewFamily,
     joinFamily,
     leaveFamily,
     generateJoinFamilyLink
   } = useSettings();
-  const { products } = useShoppingList();
   const [familyIdInput, setFamilyIdInput] = useState('');
-  const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
-  const [newFamilyName, setNewFamilyName] = useState('');
   const [isConfirmingLeave, setIsConfirmingLeave] = useState(false);
   const { toast } = useToast();
-
-  const handleCreateFamily = async () => {
-    if(!newFamilyName.trim()) {
-      toast({ variant: 'destructive', title: 'Error', description: 'Por favor, dale un nombre a tu lista.' });
-      return;
-    }
-    
-    setIsCreating(true);
-    const newFamilyId = await createNewFamily(products, newFamilyName);
-    if (newFamilyId) {
-      toast({ title: '¡Lista familiar creada!', description: `El código para unirse es ${newFamilyId}` });
-      setNewFamilyName('');
-    } else {
-      toast({ variant: 'destructive', title: 'Error', description: 'No se pudo crear la lista familiar.' });
-    }
-    setIsCreating(false);
-  };
 
   const handleJoinFamily = async () => {
     if (!familyIdInput.trim()) return;
@@ -163,9 +142,9 @@ export default function SettingsSheet({
                     placeholder="Introduce el código de la lista"
                     value={familyIdInput}
                     onChange={(e) => setFamilyIdInput(e.target.value)}
-                    disabled={isJoining || isCreating}
+                    disabled={isJoining}
                   />
-                  <Button onClick={handleJoinFamily} disabled={isJoining || isCreating || !familyIdInput.trim()}>
+                  <Button onClick={handleJoinFamily} disabled={isJoining || !familyIdInput.trim()}>
                     {isJoining ? <Loader2 className="animate-spin" /> : 'Unirse'}
                   </Button>
                 </div>
@@ -175,16 +154,9 @@ export default function SettingsSheet({
                 <span className="flex-shrink mx-4 text-muted-foreground text-xs">O</span>
                 <div className="flex-grow border-t"></div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="create-family">Crear una nueva lista</Label>
-                <div className="flex flex-col gap-2">
-                  <Input id="create-family" value={newFamilyName} placeholder="Nombre de la lista (ej: Compra Semanal)" className="font-sans text-center flex-grow" onChange={(e) => setNewFamilyName(e.target.value)} />
-                  <Button onClick={handleCreateFamily} disabled={isJoining || isCreating} className="w-full">
-                    {isCreating ? <Loader2 className="animate-spin mr-2" /> : null}
-                    Crear lista familiar
-                  </Button>
-                </div>
-              </div>
+              <Button onClick={onCreateFamilyClick} className="w-full">
+                Crear una nueva lista familiar
+              </Button>
             </div>
           )}
 

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, type ChangeEvent, useEffect } from 'react';
@@ -23,6 +24,7 @@ import {
   TabsTrigger,
 } from '@/components/ui/tabs';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { cn } from '@/lib/utils';
 
 type UploadListSheetProps = {
   addMultipleProducts: (names: string[]) => void;
@@ -49,6 +51,7 @@ export default function UploadListSheet({
     boolean | undefined
   >(undefined);
   const streamRef = useRef<MediaStream | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const getCameraPermission = async () => {
     try {
@@ -97,23 +100,46 @@ export default function UploadListSheet({
     };
   }, [open, activeTab, preview, toast]);
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const processFile = (file: File | null | undefined) => {
     toast({
       title: 'Lo lamentamos',
       description: 'En estos momentos estamos trabajando para incluir esta función.',
     });
     return;
-    
-    // const selectedFile = e.target.files?.[0];
-    // if (selectedFile) {
+    // if (file) {
     //   setImageSource('upload');
     //   const reader = new FileReader();
     //   reader.onloadend = () => {
     //     setPreview(reader.result as string);
     //   };
-    //   reader.readAsDataURL(selectedFile);
+    //   reader.readAsDataURL(file);
     // }
+  }
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    processFile(e.target.files?.[0]);
   };
+  
+  const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    processFile(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+  
+  const handleDragLeave = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
 
   const handleCapture = () => {
     if (videoRef.current && canvasRef.current) {
@@ -240,9 +266,15 @@ export default function UploadListSheet({
         </TabsList>
         <TabsContent value="upload">
           <div className="py-4">
-            <Label
+          <Label
               htmlFor="picture-upload"
-              className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted"
+              className={cn(
+                "flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted transition-colors",
+                isDragging && "bg-muted border-primary"
+              )}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
             >
               <div className="flex flex-col items-center justify-center pt-5 pb-6">
                 <FileUp className="w-8 h-8 mb-4 text-muted-foreground" />
@@ -335,3 +367,4 @@ export default function UploadListSheet({
     </Sheet>
   );
 }
+

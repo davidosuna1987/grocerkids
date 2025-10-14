@@ -10,7 +10,7 @@ import {
   SheetFooter,
 } from '@/components/ui/sheet';
 import { Label } from '@/components/ui/label';
-import { useSettings } from '@/contexts/settings-context';
+import { JoinFamilyLink, useSettings } from '@/contexts/settings-context';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { FormEvent, useState } from 'react';
@@ -24,7 +24,7 @@ type CreateFamilySheetProps = {
 };
 
 export default function CreateFamilySheet({ open, onOpenChange }: CreateFamilySheetProps) {
-  const { createNewFamily } = useSettings();
+  const { createNewFamily, generateJoinFamilyLink, familyName: currentFamilyName } = useSettings();
   const { products } = useShoppingList();
   const [isCreating, setIsCreating] = useState(false);
   const [newFamilyName, setNewFamilyName] = useState('');
@@ -43,10 +43,15 @@ export default function CreateFamilySheet({ open, onOpenChange }: CreateFamilySh
     setIsCreating(true);
     const newFamilyId = await createNewFamily(products, newFamilyName);
     if (newFamilyId) {
-      toast({
-        title: '¡Lista familiar creada!',
-        description: `Ya puedes compartirla con el código o el enlace.`,
-      });
+      const joinFamilyLink: JoinFamilyLink | null = generateJoinFamilyLink(newFamilyId);
+      if (joinFamilyLink?.url) {
+        await navigator.clipboard.writeText(`¡Únete a la lista "${newFamilyName}" en Grocer Kids!\n\n${joinFamilyLink.url}`);
+        toast({
+          title: '¡Enlace copiado!',
+          description: 'El enlace para unirse a la lista se ha copiado al portapapeles.',
+        });
+      }
+
       setNewFamilyName('');
       onOpenChange(false);
     } else {

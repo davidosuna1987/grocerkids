@@ -94,7 +94,7 @@ export default function CreateFamilySheet({ open, onOpenChange }: CreateFamilySh
               <Input
                 id="create-family"
                 value={newFamilyName}
-                placeholder="Nombre de la lista (ej: Compra Semanal)"
+                placeholder="Nombre de la lista (ej: Familia Osumar)"
                 className="font-sans text-center flex-grow h-12 text-base"
                 onChange={(e) => setNewFamilyName(e.target.value)}
                 disabled={isCreating}

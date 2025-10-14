@@ -131,7 +131,7 @@ export default function SettingsSheet({
                    <Button size="icon" variant="ghost" onClick={() => setIsConfirmingLeave(true)} className="hover:bg-destructive border hover:border-destructive">
                     <LeaveIcon className="h-5 w-5" />
                   </Button>
-                  <Input value={familyId} readOnly className="font-mono text-center flex-grow" />
+                  <Input value={familyId} readOnly className="font-mono text-center flex-grow cursor-pointer hover:border-primary" onClick={handleCopyToClipboard} />
                   <Button size="icon" variant="ghost" onClick={handleCopyToClipboard} className="border hover:border-primary">
                     <Copy className="h-5 w-5" />
                   </Button>

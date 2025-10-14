@@ -98,15 +98,21 @@ export default function UploadListSheet({
   }, [open, activeTab, preview, toast]);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setImageSource('upload');
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result as string);
-      };
-      reader.readAsDataURL(selectedFile);
-    }
+    toast({
+      title: 'Lo lamentamos',
+      description: 'En estos momentos estamos trabajando para incluir esta función.',
+    });
+    return;
+    
+    // const selectedFile = e.target.files?.[0];
+    // if (selectedFile) {
+    //   setImageSource('upload');
+    //   const reader = new FileReader();
+    //   reader.onloadend = () => {
+    //     setPreview(reader.result as string);
+    //   };
+    //   reader.readAsDataURL(selectedFile);
+    // }
   };
 
   const handleCapture = () => {
@@ -146,33 +152,40 @@ export default function UploadListSheet({
   };
 
   const handleGenerate = async () => {
-    if (!preview) return;
+    toast({
+      title: 'Lo lamentamos',
+      description: 'En estos momentos estamos trabajando para incluir esta función.',
+    });
+    setIsPending(false);
+    return;
 
-    setIsPending(true);
-    const formData = new FormData();
-    formData.append('photoDataUri', preview);
+    // if (!preview) return;
 
-    const result = await generateListFromImage(formData);
+    // setIsPending(true);
+    // const formData = new FormData();
+    // formData.append('photoDataUri', preview);
 
-    if (result.error) {
-      toast({
-        variant: 'destructive',
-        title: '¡Oh, no! Algo salió mal.',
-        description: result.error,
-      });
-      setIsPending(false);
-    } else if (result.data) {
-      handleClose();
-      await (addMultipleProducts as (names: string[]) => Promise<void>)(
-        result.data
-      );
-      toast({
-        title: '¡Éxito!',
-        description: `Se han añadido ${result.data.length} productos a tu lista.`,
-      });
-    } else {
-      setIsPending(false);
-    }
+    // const result = await generateListFromImage(formData);
+
+    // if (result.error) {
+    //   toast({
+    //     variant: 'destructive',
+    //     title: '¡Oh, no! Algo salió mal.',
+    //     description: result.error,
+    //   });
+    //   setIsPending(false);
+    // } else if (result.data) {
+    //   handleClose();
+    //   await (addMultipleProducts as (names: string[]) => Promise<void>)(
+    //     result.data
+    //   );
+    //   toast({
+    //     title: '¡Éxito!',
+    //     description: `Se han añadido ${result.data.length} productos a tu lista.`,
+    //   });
+    // } else {
+    //   setIsPending(false);
+    // }
   };
 
   const handleClose = () => {
@@ -258,14 +271,14 @@ export default function UploadListSheet({
             <div className="relative w-full aspect-video bg-muted rounded-lg overflow-hidden flex items-center justify-center">
               <video
                 ref={videoRef}
-                className="w-full h-full object-cover"
+                className={`w-full h-full object-cover ${hasCameraPermission ? "" : "hidden"}`}
                 autoPlay
                 muted
                 playsInline
               />
               <canvas ref={canvasRef} className="hidden" />
               {hasCameraPermission === false && (
-                 <Alert variant="destructive">
+                 <Alert variant="destructive" className='w-auto'>
                     <AlertTitle>Acceso a la cámara denegado</AlertTitle>
                     <AlertDescription>
                         Habilita el acceso en tu navegador para continuar.

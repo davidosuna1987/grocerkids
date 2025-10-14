@@ -1,13 +1,32 @@
 import JoinFamily from '@/app/views/join-family';
-import type { Metadata } from 'next';
 
-// 🧠 Esto se ejecuta en el SERVIDOR, aunque la página sea 'use client'
-export async function generateMetadata({ params }: { params: { familyCode: string } }): Promise<Metadata> {
-  const { familyCode } = params;
+export const dynamic = 'force-static'
+export const revalidate = 0
 
-  // (Opcional) Podrías obtener datos reales de tu API:
-  // const family = await fetch(`https://api.miapp.com/family/${familyCode}`).then(r => r.json());
-  // const name = family.name ?? familyCode;
+interface JoinFamilyParams {
+  params: {
+    familyCode: string
+  }
+}
+
+export async function getStaticPaths() {
+  return {
+    paths: [],
+    fallback: 'blocking',
+  }
+}
+
+export async function getStaticProps({ params }: JoinFamilyParams) {
+  return {
+    props: {
+      params,
+    },
+    revalidate: 0,
+  }
+}
+
+export async function generateMetadata({ params }: JoinFamilyParams) {
+  const { familyCode } = params
 
   const name = `Grocer Kids`;
   const baseUrl = 'https://grocerkids.vercel.app';
@@ -37,6 +56,6 @@ export async function generateMetadata({ params }: { params: { familyCode: strin
   };
 }
 
-export default function Page({ params }: { params: { familyCode: string } }) {
-  return <JoinFamily familyCode={params.familyCode} />;
+export default function Page({ params }: { params: { familyCode: string  } }) {
+  return <JoinFamily familyCode={params.familyCode} />
 }

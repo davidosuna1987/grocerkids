@@ -9,22 +9,6 @@ interface JoinFamilyParams {
   }
 }
 
-export async function getStaticPaths() {
-  return {
-    paths: [],
-    fallback: 'blocking',
-  }
-}
-
-export async function getStaticProps({ params }: JoinFamilyParams) {
-  return {
-    props: {
-      params,
-    },
-    revalidate: 0,
-  }
-}
-
 export async function generateMetadata({ params }: JoinFamilyParams) {
   const { familyCode } = params
 

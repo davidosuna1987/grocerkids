@@ -77,6 +77,13 @@ export default function SettingsSheet({
       }
     }
   };
+
+  const handleCopyCodeToClipboard = async () => {
+    if (familyId) {
+        await navigator.clipboard.writeText(`¡Únete a la lista "${familyName}" en Grocer Kids con este código!\n\n${familyId}`);
+        toast({ title: '¡Copiado!', description: 'El código para unirse a la lista se ha copiado al portapapeles.' });
+    }
+  };
   
   const isLastMember = membersCount <= 1;
   const leaveButtonText = isLastMember ? 'Eliminar lista' : 'Abandonar lista';
@@ -118,7 +125,7 @@ export default function SettingsSheet({
                    <Button size="icon" variant="ghost" onClick={() => setIsConfirmingLeave(true)} className="hover:bg-destructive border hover:border-destructive">
                     <LeaveIcon className="h-5 w-5" />
                   </Button>
-                  <Input value={`CÓDIGO: ${familyId}`} readOnly className="font-mono text-center flex-grow cursor-pointer hover:border-primary" onClick={handleCopyToClipboard} />
+                  <Input value={`Copiar código: ${familyId}`} readOnly className="font-mono text-center flex-grow cursor-pointer hover:border-primary" onClick={handleCopyCodeToClipboard} />
                   <Button size="icon" variant="ghost" onClick={handleCopyToClipboard} className="border hover:border-primary">
                     <Share2 className="h-5 w-5" />
                   </Button>

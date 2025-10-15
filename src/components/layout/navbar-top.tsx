@@ -42,10 +42,8 @@ export default function NavbarTop() {
         </div>
         <div className="flex items-center gap-2">
           <Button
-            variant={familyId ? 'ghost' : 'default'}
-            className={cn(
-              "bg-card rounded-2xl shadow-sm relative group overflow-hidden border hover:border-primary",
-            )}
+            variant={familyId ? 'ghost' : undefined}
+            className="border"
             onClick={handleOpenSettingsSheet}
           >
             {getIcon()}

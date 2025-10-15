@@ -143,11 +143,11 @@ export default function SettingsSheet({
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                   <Button size="icon" variant="ghost" onClick={() => setIsConfirmingLeave(true)} className="hover:bg-destructive border hover:border-destructive">
+                   <Button size="icon" variant="ghost" onClick={() => setIsConfirmingLeave(true)} className="border hover:bg-destructive hover:text-destructive-foreground hover:border-destructive">
                     <LeaveIcon className="h-5 w-5" />
                   </Button>
                   <Input value={`Copiar código: ${familyId}`} readOnly className="font-mono text-center flex-grow cursor-pointer hover:border-primary" onClick={handleCopyCodeToClipboard} />
-                  <Button size="icon" variant="ghost" onClick={handleCopyToClipboard} className="border hover:border-primary">
+                  <Button size="icon" variant="ghostAccent" onClick={handleCopyToClipboard} className="border">
                     <Share2 className="h-5 w-5" />
                   </Button>
                 </div>

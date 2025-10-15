@@ -35,14 +35,14 @@ export default function ClearListSheet({
             productos de tu lista.
           </SheetDescription>
         </SheetHeader>
-        <SheetFooter className="mt-6 flex-col-reverse sm:flex-col-reverse gap-2">
+        <SheetFooter className="mt-6 !flex-col-reverse gap-2">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
           >
             Cancelar
           </Button>
-          <Button variant="destructive" onClick={onConfirm}>
+          <Button variant="destructive" className="!ml-0" onClick={onConfirm}>
             Vaciar Cesta
           </Button>
         </SheetFooter>

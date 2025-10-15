@@ -41,15 +41,29 @@ export default function CreateFamilySheet({ open, onOpenChange }: CreateFamilySh
     }
 
     setIsCreating(true);
+
     const newFamilyId = await createNewFamily(products, newFamilyName);
+
     if (newFamilyId) {
       const joinFamilyLink: JoinFamilyLink | null = generateJoinFamilyLink(newFamilyId);
       if (joinFamilyLink?.url) {
-        await navigator.clipboard.writeText(`¡Únete a la lista "${newFamilyName}" en Grocer Kids!\n\n${joinFamilyLink.url}`);
-        toast({
-          title: '¡Enlace copiado!',
-          description: 'El enlace para unirse a la lista se ha copiado al portapapeles.',
-        });
+        try {
+          await navigator.clipboard.writeText(`¡Únete a la lista "${newFamilyName}" en Grocer Kids!\n\n${joinFamilyLink.url}`);
+          toast({
+            title: '¡Enlace copiado!',
+            description: 'El enlace para unirse a la lista se ha copiado al portapapeles.',
+          });
+        } catch (error) {
+          toast({
+            title: '¡Lista creada!',
+            description: 'La lista se ha creado correctamente, pero no se pudo copiar el enlace al portapapeles.',
+          });
+          toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: 'No se pudo copiar el enlace al portapapeles.',
+          });
+        } 
       }
 
       setNewFamilyName('');

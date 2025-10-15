@@ -14,20 +14,23 @@ import { JoinFamilyLink, useSettings } from '@/contexts/settings-context';
 import { IMAGE_PROVIDERS_MAP, type ImageProvider } from '@/types';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Share2, LogOut, Trash2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 type SettingsSheetProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCreateFamilyClick: () => void;
+  onlyFamily?: boolean;
 };
 
 export default function SettingsSheet({
   open,
   onOpenChange,
   onCreateFamilyClick,
+  onlyFamily = false,
 }: SettingsSheetProps) {
   const {
     provider,
@@ -66,18 +69,41 @@ export default function SettingsSheet({
     if (familyId) {
       const joinFamilyLink: JoinFamilyLink | null = generateJoinFamilyLink(familyId);
       if (joinFamilyLink) {
-        await navigator.clipboard.writeText(`¡Únete a la lista "${familyName}" en Grocer Kids!\n\n${joinFamilyLink.url}`);
-        toast({ title: '¡Copiado!', description: 'El enlace para unirse a la lista se ha copiado al portapapeles.' });
+        try {
+          await navigator.clipboard.writeText(`¡Únete a la lista "${familyName}" en Grocer Kids!\n\n${joinFamilyLink.url}`);
+          toast({ title: '¡Copiado!', description: 'El enlace para unirse a la lista se ha copiado al portapapeles.' });
+        } catch (error) {
+          toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: 'No se pudo copiar el enlace al portapapeles.',
+          });
+          return;
+        } 
       }
     }
   };
 
   const handleCopyCodeToClipboard = async () => {
     if (familyId) {
+      try {
         await navigator.clipboard.writeText(`¡Únete a la lista "${familyName}" en Grocer Kids con este código!\n\n${familyId}`);
         toast({ title: '¡Copiado!', description: 'El código para unirse a la lista se ha copiado al portapapeles.' });
+      } catch (error) {
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: 'No se pudo copiar el código al portapapeles.',
+        });
+        return;
+      } 
     }
   };
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      handleJoinFamily();
+    };
   
   const isLastMember = membersCount <= 1;
   const leaveButtonText = isLastMember ? 'Eliminar lista' : 'Abandonar lista';
@@ -85,6 +111,9 @@ export default function SettingsSheet({
     ? (isLastMember ? '¿Seguro que quieres eliminar la lista?' : '¿Seguro que quieres abandonar la lista?') 
     : `Estás en la lista: ${familyName || '...'}`;
   const LeaveIcon = isLastMember ? Trash2 : LogOut;
+
+  const title = onlyFamily ? 'Sincronizar lista de la compra' : 'Ajustes'
+  const description = onlyFamily ? undefined : 'Personaliza tu experiencia en Grocer Kids.'
 
 
   return (
@@ -96,10 +125,8 @@ export default function SettingsSheet({
     }}>
       <SheetContent side="bottom" className="rounded-t-2xl">
         <SheetHeader className="text-center">
-          <SheetTitle className="-mb-2">Ajustes</SheetTitle>
-          <SheetDescription>
-            Personaliza tu experiencia en Grocer Kids.
-          </SheetDescription>
+          <SheetTitle className="-mb-2">{title}</SheetTitle>
+          {!!description && <SheetDescription>{description}</SheetDescription>}
         </SheetHeader>
         <div className="py-6 space-y-6 max-w-sm mx-auto">
         {familyId ? (
@@ -134,8 +161,8 @@ export default function SettingsSheet({
             </div>
           ) : (
             <div className="space-y-4">
-              <h3 className="font-semibold text-center">Compartir lista de la compra</h3>
-              <div className="space-y-2">
+              {!onlyFamily && <h3 className="font-semibold text-center">Sincronizar lista de la compra</h3>}
+              <form onSubmit={handleSubmit} className="space-y-2">
                 <Label htmlFor="join-family">Unirse a una lista existente</Label>
                 <div className="flex items-center gap-2">
                   <Input
@@ -145,11 +172,18 @@ export default function SettingsSheet({
                     onChange={(e) => setFamilyIdInput(e.target.value)}
                     disabled={isJoining}
                   />
-                  <Button onClick={handleJoinFamily} disabled={isJoining || !familyIdInput.trim()}>
-                    {isJoining ? <Loader2 className="animate-spin" /> : 'Unirse'}
+                  <Button onClick={handleJoinFamily} className="relative" disabled={isJoining || !familyIdInput.trim()}>
+                    <div className='absolute'>
+                      <Loader2 className={cn(["animate-spin", {
+                        "hidden": !isJoining,
+                      }])} />
+                    </div>
+                    <span className={cn([{
+                        "opacity-0": isJoining,
+                      }])}>Unirse</span>
                   </Button>
                 </div>
-              </div>
+              </form>
               <div className="relative flex items-center">
                 <div className="flex-grow border-t"></div>
                 <span className="flex-shrink mx-4 text-muted-foreground text-xs">O</span>
@@ -161,34 +195,38 @@ export default function SettingsSheet({
             </div>
           )}
 
-          <Separator />
+          {!onlyFamily &&
+            <>
+              <Separator />
 
-          <div className="flex flex-col gap-2">
-            <Label>Proveedor de imágenes</Label>
-            <div className='grid grid-cols-3 gap-2'>
-                <Button 
-                    variant={provider === IMAGE_PROVIDERS_MAP.google ? 'default' : 'ghost'} 
-                    onClick={() => setProvider(IMAGE_PROVIDERS_MAP.google)}
-                    className='border'
-                >
-                    Google
-                </Button>
-                <Button 
-                    variant={provider === IMAGE_PROVIDERS_MAP.pexels ? 'default' : 'ghost'} 
-                    onClick={() => setProvider(IMAGE_PROVIDERS_MAP.pexels)}
-                    className='border'
-                >
-                    Pexels
-                </Button>
-                <Button 
-                    variant={provider === IMAGE_PROVIDERS_MAP.pixabay ? 'default' : 'ghost'} 
-                    onClick={() => setProvider(IMAGE_PROVIDERS_MAP.pixabay)}
-                    className='border'
-                >
-                    Pixabay
-                </Button>
-            </div>
-          </div>
+              <div className="flex flex-col gap-2">
+                <Label>Proveedor de imágenes</Label>
+                <div className='grid grid-cols-3 gap-2'>
+                    <Button 
+                        variant={provider === IMAGE_PROVIDERS_MAP.google ? 'default' : 'ghost'} 
+                        onClick={() => setProvider(IMAGE_PROVIDERS_MAP.google)}
+                        className='border'
+                    >
+                        Google
+                    </Button>
+                    <Button 
+                        variant={provider === IMAGE_PROVIDERS_MAP.pexels ? 'default' : 'ghost'} 
+                        onClick={() => setProvider(IMAGE_PROVIDERS_MAP.pexels)}
+                        className='border'
+                    >
+                        Pexels
+                    </Button>
+                    <Button 
+                        variant={provider === IMAGE_PROVIDERS_MAP.pixabay ? 'default' : 'ghost'} 
+                        onClick={() => setProvider(IMAGE_PROVIDERS_MAP.pixabay)}
+                        className='border'
+                    >
+                        Pixabay
+                    </Button>
+                </div>
+              </div>
+            </>
+          }
         </div>
       </SheetContent>
     </Sheet>

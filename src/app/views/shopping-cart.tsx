@@ -16,6 +16,7 @@ import CreateFamilySheet from '@/components/settings/create-family-sheet';
 import { useSettings } from '@/contexts/settings-context';
 import NavbarTop from '@/components/layout/navbar-top';
 import { Confetti } from '@/components/effects/confetti';
+import { toast } from '@/hooks/use-toast';
 
 export default function ShoppingCart() {
   const {
@@ -46,14 +47,26 @@ export default function ShoppingCart() {
     }
   }, [allProductsBought, confettiTrigger]);
 
+  const showEmptyListToast = () => 
+    toast({
+      title: 'Tu lista está vacía',
+      description: 'Añade productos usando el buscador o sube una foto de tu lista.',
+    });
+
+  const handleClearClick = () => {
+    if(!products.length) {
+      showEmptyListToast();
+      return;
+    }
+    
+    setClearListSheetOpen(true);
+  }
+
   const handleClearList = () => {
     clearList();
     setClearListSheetOpen(false);
-    setCelebrationSheetOpen(false); // Also close celebration sheet if open
-  };
-
-  const handleCloseCelebration = () => {
     setCelebrationSheetOpen(false);
+    showEmptyListToast();
   };
 
   return (
@@ -118,7 +131,7 @@ export default function ShoppingCart() {
 
       <BottomNavigation
         onUploadClick={() => setUploadDialogOpen(true)}
-        onClearClick={() => setClearListSheetOpen(true)}
+        onClearClick={handleClearClick}
         onSettingsClick={() => setSettingsSheetOpen(true)}
         onCreateFamilyClick={() => setCreateFamilySheetOpen(true)}
         hasProducts={products.length > 0}

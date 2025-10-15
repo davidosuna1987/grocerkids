@@ -5,7 +5,6 @@ import { Trash2, List, Grid, Camera, Settings, Share2 } from 'lucide-react';
 import { JoinFamilyLink, useSettings } from '@/contexts/settings-context';
 import { VIEW_TYPES_MAP } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import { useShoppingList } from '@/hooks/use-shopping-list';
 
 type BottomNavigationProps = {
   onUploadClick: () => void;
@@ -42,8 +41,17 @@ export default function BottomNavigation({
     if (familyId) {
       const joinFamilyLink: JoinFamilyLink | null = generateJoinFamilyLink(familyId);
       if (joinFamilyLink) {
-        await navigator.clipboard.writeText(`¡Únete a mi lista de la compra!\n\n${joinFamilyLink.url}`);
-        toast({ title: '¡Copiado!', description: 'El enlace para unirse a la lista se ha copiado al portapapeles.' });
+        try {
+          await navigator.clipboard.writeText(`¡Únete a mi lista de la compra!\n\n${joinFamilyLink.url}`);
+          toast({ title: '¡Copiado!', description: 'El enlace para unirse a la lista se ha copiado al portapapeles.' });
+        } catch (error) {
+          toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: 'No se pudo copiar el enlace al portapapeles.',
+          });
+          return;
+        } 
       }
     }
   };
@@ -55,7 +63,6 @@ export default function BottomNavigation({
           variant="ghost"
           className="flex flex-col items-center text-muted-foreground h-auto hover:bg-transparent [&:hover>span]:text-primary [&:hover>svg]:text-primary"
           onClick={onClearClick}
-          disabled={!hasProducts}
         >
           <Trash2 className='!size-6 sm:!size-7' />
         </Button>
@@ -81,14 +88,6 @@ export default function BottomNavigation({
             <Camera className='!size-8 sm:!size-10' />
           </div>
         </Button>
-        
-        <Button
-          variant="ghost"
-          className="flex flex-col items-center text-muted-foreground h-auto hover:bg-transparent [&:hover>span]:text-primary [&:hover>svg]:text-primary"
-          onClick={onSettingsClick}
-        >
-          <Settings className="!size-6 sm:!size-7" />
-        </Button>
 
         <Button
           variant="ghost"
@@ -96,6 +95,14 @@ export default function BottomNavigation({
           onClick={handleShare}
         >
           <Share2 className='!size-6 sm:!size-7' />
+        </Button>
+        
+        <Button
+          variant="ghost"
+          className="flex flex-col items-center text-muted-foreground h-auto hover:bg-transparent [&:hover>span]:text-primary [&:hover>svg]:text-primary"
+          onClick={onSettingsClick}
+        >
+          <Settings className="!size-6 sm:!size-7" />
         </Button>
       </nav>
     </footer>

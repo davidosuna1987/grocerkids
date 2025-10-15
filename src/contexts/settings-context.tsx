@@ -44,7 +44,24 @@ interface SettingsProviderProps {
 }
 
 export function SettingsProvider({ children }: SettingsProviderProps) {
-  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+  const [settings, setSettings] = useState<AppSettings>(() => {
+    try {
+      const storedSettings = window.localStorage.getItem(SETTINGS_KEY);
+      if (storedSettings) {
+        const parsedSettings = JSON.parse(storedSettings);
+        return {
+          provider: IMAGE_PROVIDERS.includes(parsedSettings.provider) ? parsedSettings.provider : DEFAULT_SETTINGS.provider,
+          viewType: VIEW_TYPES.includes(parsedSettings.viewType) ? parsedSettings.viewType : DEFAULT_SETTINGS.viewType,
+          theme: THEMES.includes(parsedSettings.theme) ? parsedSettings.theme : DEFAULT_SETTINGS.theme,
+          familyId: parsedSettings.familyId || null,
+        };
+      }
+    } catch (error) {
+      console.error('Failed to load settings from localStorage', error);
+    }
+    return DEFAULT_SETTINGS;
+  });
+
   const [membersCount, setMembersCount] = useState<number>(0);
   const [familyName, setFamilyName] = useState<string | null>(null);
   const { setTheme: setNextTheme } = useTheme();
@@ -53,30 +70,12 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
 
   useEffect(() => {
     try {
-      const storedSettings = window.localStorage.getItem(SETTINGS_KEY);
-      if (storedSettings) {
-        const parsedSettings = JSON.parse(storedSettings);
-        const validSettings: AppSettings = {
-          provider: IMAGE_PROVIDERS.includes(parsedSettings.provider) ? parsedSettings.provider : DEFAULT_SETTINGS.provider,
-          viewType: VIEW_TYPES.includes(parsedSettings.viewType) ? parsedSettings.viewType : DEFAULT_SETTINGS.viewType,
-          theme: THEMES.includes(parsedSettings.theme) ? parsedSettings.theme : DEFAULT_SETTINGS.theme,
-          familyId: parsedSettings.familyId || null,
-        };
-        setSettings(validSettings);
-        setNextTheme(validSettings.theme);
-      }
-    } catch (error) {
-      console.error('Failed to load settings from localStorage', error);
-    }
-  }, [setNextTheme]);
-
-  useEffect(() => {
-    try {
       window.localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+      setNextTheme(settings.theme);
     } catch (error) {
-      console.error('Failed to save settings to localStorage', error);
+      console.error('Failed to save settings to localStorage or set theme', error);
     }
-  }, [settings]);
+  }, [settings, setNextTheme]);
   
   const setFamilyId = useCallback((familyId: string | null) => {
     setSettings(prev => ({ ...prev, familyId }));

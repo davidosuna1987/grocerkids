@@ -61,7 +61,7 @@ export default function BottomNavigation({
       <nav className="flex justify-between items-center h-20 px-4 mx-auto lg:px-0">
         <Button
           variant="ghost"
-          className="flex flex-col items-center text-black/60 h-auto hover:bg-transparent [&:hover>span]:text-destructive [&:hover>svg]:text-destructive"
+          className="flex flex-col items-center text-black/60 dark:text-white/60 h-auto hover:bg-transparent [&:hover>span]:text-destructive [&:hover>svg]:text-destructive"
           onClick={onClearClick}
         >
           <Trash2 className='!size-6 sm:!size-7' />
@@ -69,7 +69,7 @@ export default function BottomNavigation({
 
         <Button
           variant="ghost"
-          className="flex flex-col items-center text-black/60 h-auto hover:bg-transparent [&:hover>span]:text-primary [&:hover>svg]:text-primary"
+          className="flex flex-col items-center text-black/60 dark:text-white/60 h-auto hover:bg-transparent [&:hover>span]:text-primary [&:hover>svg]:text-primary"
           onClick={handleViewToggle}
         >
           {viewType === 'list' ? (
@@ -91,7 +91,7 @@ export default function BottomNavigation({
 
         <Button
           variant="ghost"
-          className="flex flex-col items-center text-black/60 h-auto hover:bg-transparent [&:hover>span]:text-primary [&:hover>svg]:text-primary"
+          className="flex flex-col items-center text-black/60 dark:text-white/60 h-auto hover:bg-transparent [&:hover>span]:text-primary [&:hover>svg]:text-primary"
           onClick={handleShare}
         >
           <Share2 className='!size-6 sm:!size-7' />
@@ -99,7 +99,7 @@ export default function BottomNavigation({
         
         <Button
           variant="ghost"
-          className="flex flex-col items-center text-black/60 h-auto hover:bg-transparent [&:hover>span]:text-primary [&:hover>svg]:text-primary"
+          className="flex flex-col items-center text-black/60 dark:text-white/60 h-auto hover:bg-transparent [&:hover>span]:text-primary [&:hover>svg]:text-primary"
           onClick={onSettingsClick}
         >
           <Settings className="!size-6 sm:!size-7" />

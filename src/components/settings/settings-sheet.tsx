@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -8,13 +9,6 @@ import {
   SheetDescription,
 } from '@/components/ui/sheet';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator'
 import { JoinFamilyLink, useSettings } from '@/contexts/settings-context';
 import { IMAGE_PROVIDERS_MAP, type ImageProvider } from '@/types';
@@ -170,20 +164,30 @@ export default function SettingsSheet({
           <Separator />
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="image-provider">Proveedor de imágenes</Label>
-            <Select
-              value={provider}
-              onValueChange={(value: ImageProvider) => setProvider(value)}
-            >
-              <SelectTrigger id="image-provider">
-                <SelectValue placeholder="Seleccionar proveedor" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={IMAGE_PROVIDERS_MAP.google}>Google</SelectItem>
-                <SelectItem value={IMAGE_PROVIDERS_MAP.pexels}>Pexels</SelectItem>
-                <SelectItem value={IMAGE_PROVIDERS_MAP.pixabay}>Pixabay</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label>Proveedor de imágenes</Label>
+            <div className='grid grid-cols-3 gap-2'>
+                <Button 
+                    variant={provider === IMAGE_PROVIDERS_MAP.google ? 'default' : 'ghost'} 
+                    onClick={() => setProvider(IMAGE_PROVIDERS_MAP.google)}
+                    className='border'
+                >
+                    Google
+                </Button>
+                <Button 
+                    variant={provider === IMAGE_PROVIDERS_MAP.pexels ? 'default' : 'ghost'} 
+                    onClick={() => setProvider(IMAGE_PROVIDERS_MAP.pexels)}
+                    className='border'
+                >
+                    Pexels
+                </Button>
+                <Button 
+                    variant={provider === IMAGE_PROVIDERS_MAP.pixabay ? 'default' : 'ghost'} 
+                    onClick={() => setProvider(IMAGE_PROVIDERS_MAP.pixabay)}
+                    className='border'
+                >
+                    Pixabay
+                </Button>
+            </div>
           </div>
         </div>
       </SheetContent>

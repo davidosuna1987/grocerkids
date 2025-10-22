@@ -21,8 +21,7 @@ export default function ProductSearchForm({ addProduct }: ProductSearchFormProps
       await (addProduct as (name: string) => Promise<void>)(itemName.trim());
       setItemName('');
       setIsAdding(false);
-      // Refocus the input after adding the product
-      inputRef.current?.focus();
+      setTimeout(() => inputRef.current?.focus(), 50);
     }
   };
 

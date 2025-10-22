@@ -16,7 +16,8 @@ import { Input } from '../ui/input';
 import { FormEvent, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useShoppingList } from '@/hooks/use-shopping-list';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Share } from 'lucide-react';
+import { useShare } from '@/hooks/use-share';
 
 type CreateFamilySheetProps = {
   open: boolean;
@@ -29,6 +30,7 @@ export default function CreateFamilySheet({ open, onOpenChange }: CreateFamilySh
   const [isCreating, setIsCreating] = useState(false);
   const [newFamilyName, setNewFamilyName] = useState('');
   const { toast } = useToast();
+  const { share } = useShare();
 
   const handleCreateFamily = async () => {
     if (!newFamilyName.trim()) {
@@ -48,20 +50,11 @@ export default function CreateFamilySheet({ open, onOpenChange }: CreateFamilySh
       const joinFamilyLink: JoinFamilyLink | null = generateJoinFamilyLink(newFamilyId);
       if (joinFamilyLink?.url) {
         try {
-          await navigator.clipboard.writeText(`¡Únete a la lista "${newFamilyName}" en Grocer Kids!\n\n${joinFamilyLink.url}`);
-          toast({
-            title: '¡Enlace copiado!',
-            description: 'El enlace para unirse a la lista se ha copiado al portapapeles.',
-          });
+          await share({text: `¡Únete a la lista "${newFamilyName}" en Grocer Kids!\n\n${joinFamilyLink.url}`})
         } catch (error) {
           toast({
             title: '¡Lista creada!',
             description: 'La lista se ha creado correctamente, pero no se pudo copiar el enlace al portapapeles.',
-          });
-          toast({
-            variant: 'destructive',
-            title: 'Error',
-            description: 'No se pudo copiar el enlace al portapapeles.',
           });
         } 
       }

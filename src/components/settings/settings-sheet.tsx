@@ -18,6 +18,7 @@ import { FormEvent, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Share2, LogOut, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useShare } from '@/hooks/use-share';
 
 type SettingsSheetProps = {
   open: boolean;
@@ -47,6 +48,7 @@ export default function SettingsSheet({
   const [isLeaving, setIsLeaving] = useState(false);
   const [isConfirmingLeave, setIsConfirmingLeave] = useState(false);
   const { toast } = useToast();
+  const { share } = useShare();
 
   const handleJoinFamily = async () => {
     if (!familyIdInput.trim()) return;
@@ -69,34 +71,14 @@ export default function SettingsSheet({
     if (familyId) {
       const joinFamilyLink: JoinFamilyLink | null = generateJoinFamilyLink(familyId);
       if (joinFamilyLink) {
-        try {
-          await navigator.clipboard.writeText(`¡Únete a la lista "${familyName}" en Grocer Kids!\n\n${joinFamilyLink.url}`);
-          toast({ title: '¡Copiado!', description: 'El enlace para unirse a la lista se ha copiado al portapapeles.' });
-        } catch (error) {
-          toast({
-            variant: 'destructive',
-            title: 'Error',
-            description: 'No se pudo copiar el enlace al portapapeles.',
-          });
-          return;
-        } 
+        await share({text: `¡Únete a la lista "${familyName}" en Grocer Kids!\n\n${joinFamilyLink.url}`})
       }
     }
   };
 
   const handleCopyCodeToClipboard = async () => {
     if (familyId) {
-      try {
-        await navigator.clipboard.writeText(`¡Únete a la lista "${familyName}" en Grocer Kids con este código!\n\n${familyId}`);
-        toast({ title: '¡Copiado!', description: 'El código para unirse a la lista se ha copiado al portapapeles.' });
-      } catch (error) {
-        toast({
-          variant: 'destructive',
-          title: 'Error',
-          description: 'No se pudo copiar el código al portapapeles.',
-        });
-        return;
-      } 
+        await share({text: `¡Únete a la lista "${familyName}" en Grocer Kids con este código!\n\n${familyId}`});
     }
   };
 

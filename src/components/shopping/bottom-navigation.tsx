@@ -5,6 +5,7 @@ import { Trash2, List, Grid, Camera, Settings, Share2 } from 'lucide-react';
 import { JoinFamilyLink, useSettings } from '@/contexts/settings-context';
 import { VIEW_TYPES_MAP } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { useShare } from '@/hooks/use-share';
 
 type BottomNavigationProps = {
   onUploadClick: () => void;
@@ -21,6 +22,7 @@ export default function BottomNavigation({
   onCreateFamilyClick,
   hasProducts,
 }: BottomNavigationProps) {
+  const { share } = useShare();
   const { toast } = useToast();
   const { viewType, setViewType, familyId, generateJoinFamilyLink } = useSettings();
 
@@ -41,17 +43,7 @@ export default function BottomNavigation({
     if (familyId) {
       const joinFamilyLink: JoinFamilyLink | null = generateJoinFamilyLink(familyId);
       if (joinFamilyLink) {
-        try {
-          await navigator.clipboard.writeText(`¡Únete a mi lista de la compra!\n\n${joinFamilyLink.url}`);
-          toast({ title: '¡Copiado!', description: 'El enlace para unirse a la lista se ha copiado al portapapeles.' });
-        } catch (error) {
-          toast({
-            variant: 'destructive',
-            title: 'Error',
-            description: 'No se pudo copiar el enlace al portapapeles.',
-          });
-          return;
-        } 
+        await share({text: `¡Únete a mi lista de la compra!\n\n${joinFamilyLink.url}`})
       }
     }
   };

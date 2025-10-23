@@ -30,12 +30,12 @@ export function useFoodImage() {
     return withDims[0].url || withDims[0].thumb || null;
   };
 
-  const getProductImage = useCallback(
-    async (food: string, provider?: ImageProvider): Promise<string> => {
+  const getProductImages = useCallback(
+    async (food: string, provider?: ImageProvider): Promise<string[]> => {
       const activeProvider = provider || currentProvider;
       const fallbackImage = `https://ui-avatars.com/api/?name=${food}&background=7d3eea&color=fff&length=1&bold=false&uppercase=true&format=svg`
 
-      if (!food?.trim()) return fallbackImage;
+      if (!food?.trim()) return [fallbackImage];
 
       try {
         let url = "";
@@ -44,7 +44,7 @@ export function useFoodImage() {
         if (activeProvider === IMAGE_PROVIDERS_MAP.pexels) {
           if (!PEXELS_API_KEY) {
             console.error("Pexels API key missing: NEXT_PUBLIC_PEXELS_API_KEY");
-            return fallbackImage;
+            return [fallbackImage];
           }
           url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(food)}&locale=es-ES&per_page=1`;
           headers = { Authorization: PEXELS_API_KEY };
@@ -52,14 +52,14 @@ export function useFoodImage() {
         } else if (activeProvider === IMAGE_PROVIDERS_MAP.pixabay) {
           if (!PIXABAY_API_KEY) {
             console.error("Pixabay API key missing: NEXT_PUBLIC_PIXABAY_API_KEY");
-            return fallbackImage;
+            return [fallbackImage];
           }
           url = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(food)}&lang=es&image_type=photo&per_page=5`;
 
         } else if (activeProvider === IMAGE_PROVIDERS_MAP.google) {
           if (!GOOGLE_CSE_CX || !GOOGLE_API_KEY) {
             console.error("Google CSE creds missing: NEXT_PUBLIC_GOOGLE_CSE_CX / NEXT_PUBLIC_GOOGLE_API_KEY");
-            return fallbackImage;
+            return [fallbackImage];
           }
           // Afinado “estilo imágenes de Google”
           // - searchType=image → solo imágenes
@@ -80,7 +80,7 @@ export function useFoodImage() {
           url = `https://www.googleapis.com/customsearch/v1?${params.toString()}`;
 
         } else {
-          return fallbackImage;
+          return [fallbackImage];
         }
 
         const response = await fetch(url, { headers });
@@ -91,28 +91,39 @@ export function useFoodImage() {
         const data = await response.json();
 
         if (activeProvider === IMAGE_PROVIDERS_MAP.pexels && Array.isArray(data.photos) && data.photos.length > 0) {
-          return data.photos[0].src?.large ?? data.photos[0].src?.medium ?? fallbackImage;
+          return data.photos.map(
+            (photo: { src: { large: string; medium: string; }; }) => 
+              photo.src?.large ?? photo.src?.medium ?? fallbackImage);
         }
 
         if (activeProvider === IMAGE_PROVIDERS_MAP.pixabay && Array.isArray(data.hits) && data.hits.length > 0) {
-          return data.hits[0].largeImageURL ?? data.hits[0].webformatURL ?? fallbackImage;
+          return data.photos.map(
+            (photo: { hits: { largeImageURL: string; webformatURL: string; }; }) => 
+              photo.hits?.largeImageURL ?? photo.hits?.webformatURL ?? fallbackImage);
         }
 
         if (activeProvider === IMAGE_PROVIDERS_MAP.google && Array.isArray(data.items) && data.items.length > 0) {
-          const best = pickLargestGoogleImage(data.items);
-          return best ?? fallbackImage;
+          return data.items.map(
+            (photo: { link: string; thumbnailLink: string; }) => 
+              photo.link ?? photo.thumbnailLink ?? fallbackImage);
         }
 
-        console.log(`No results on ${String(activeProvider)} for "${food}", using fallback.`);
-        return fallbackImage;
-
+        return [fallbackImage];
       } catch (err: any) {
         console.error(err?.message ?? err);
-        return fallbackImage;
+        return [fallbackImage];
       }
     },
     [currentProvider]
   );
 
-  return { getProductImage };
+  const getProductImage = useCallback(
+    async (food: string, provider?: ImageProvider): Promise<string> => {
+      const images = await getProductImages(food, provider);
+      return images[0];
+    },
+    [getProductImages]
+  );
+
+  return { getProductImage, getProductImages };
 }

@@ -28,6 +28,7 @@ interface SettingsContextType {
   familyId: string | null | undefined;
   familyName: string | null;
   membersCount: number;
+  isLightTheme: boolean;
   setProvider: (provider: ImageProvider) => void;
   setViewType: (viewType: ViewType) => void;
   setTheme: (theme: Theme) => void;
@@ -44,38 +45,47 @@ interface SettingsProviderProps {
 }
 
 export function SettingsProvider({ children }: SettingsProviderProps) {
-  const [settings, setSettings] = useState<AppSettings>(() => {
+  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+
+  const [membersCount, setMembersCount] = useState<number>(0);
+  const [familyName, setFamilyName] = useState<string | null>(null);
+  const { setTheme: setNextTheme, systemTheme } = useTheme();
+  const firestore = useFirestore();
+  const { toast } = useToast();
+  
+  const isLightTheme = settings.theme === 'light' || (settings.theme === 'system' && systemTheme === 'light');
+
+  useEffect(() => {
     try {
       const storedSettings = window.localStorage.getItem(SETTINGS_KEY);
       if (storedSettings) {
         const parsedSettings = JSON.parse(storedSettings);
-        return {
+        // Validate settings before applying them
+        const validSettings: AppSettings = {
           provider: IMAGE_PROVIDERS.includes(parsedSettings.provider) ? parsedSettings.provider : DEFAULT_SETTINGS.provider,
           viewType: VIEW_TYPES.includes(parsedSettings.viewType) ? parsedSettings.viewType : DEFAULT_SETTINGS.viewType,
           theme: THEMES.includes(parsedSettings.theme) ? parsedSettings.theme : DEFAULT_SETTINGS.theme,
           familyId: parsedSettings.familyId || null,
         };
+        setSettings(validSettings);
+        setNextTheme(validSettings.theme);
+      } else {
+        setNextTheme(DEFAULT_SETTINGS.theme);
       }
     } catch (error) {
       console.error('Failed to load settings from localStorage', error);
+      setNextTheme(DEFAULT_SETTINGS.theme);
     }
-    return DEFAULT_SETTINGS;
-  });
+  }, [setNextTheme]);
 
-  const [membersCount, setMembersCount] = useState<number>(0);
-  const [familyName, setFamilyName] = useState<string | null>(null);
-  const { setTheme: setNextTheme } = useTheme();
-  const firestore = useFirestore();
-  const { toast } = useToast();
 
   useEffect(() => {
     try {
       window.localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-      setNextTheme(settings.theme);
     } catch (error) {
       console.error('Failed to save settings to localStorage or set theme', error);
     }
-  }, [settings, setNextTheme]);
+  }, [settings]);
   
   const setFamilyId = useCallback((familyId: string | null) => {
     setSettings(prev => ({ ...prev, familyId }));
@@ -128,7 +138,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     } : null;
   }, []);
 
-  const leaveFamily = useCallback(async (): Promise<{ success: boolean; wasLastMember: boolean }> => {
+  const leaveFamily = useCallback(async (showToast = true): Promise<{ success: boolean; wasLastMember: boolean }> => {
     if (!settings.familyId || !firestore) return { success: false, wasLastMember: false };
     
     const familyRef = doc(firestore, 'families', settings.familyId);
@@ -150,16 +160,20 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
             }
         });
 
-        toast({
-          title: wasLastMember ? 'Lista familiar eliminada' : 'Has abandonado la lista',
-          description: wasLastMember ? 'La lista ha sido eliminada permanentemente.' : 'Tu lista ahora es local.'
-        });
+        if (showToast) {
+          toast({
+            title: wasLastMember ? 'Lista familiar eliminada' : 'Has abandonado la lista',
+            description: wasLastMember ? 'La lista ha sido eliminada permanentemente.' : 'Tu lista ahora es local.'
+          });
+        }
 
         setFamilyId(null);
         return { success: true, wasLastMember };
     } catch (error) {
         console.error("Error leaving/deleting family:", error);
-        toast({ variant: 'destructive', title: 'Error', description: 'No se pudo abandonar la lista.' });
+        if (showToast) {
+          toast({ variant: 'destructive', title: 'Error', description: 'No se pudo abandonar la lista.' });
+        }
         return { success: false, wasLastMember: false };
     }
   }, [settings.familyId, firestore, setFamilyId, toast]);
@@ -176,7 +190,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
       const familyDoc = await getDoc(familyRef);
       if (familyDoc.exists()) {
         if(settings.familyId) {
-          await leaveFamily();
+          await leaveFamily(false); // Leave current family without showing toast
         }
         await setDoc(familyRef, { members: increment(1) }, { merge: true });
         setFamilyId(familyIdToJoin);
@@ -199,7 +213,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     const familyRef = doc(firestore, 'families', newFamilyId);
     try {
       if(settings.familyId) {
-        await leaveFamily();
+        await leaveFamily(false);
       }
       await setDoc(familyRef, { id: newFamilyId, name: familyName.trim(), shoppingList: currentProducts, members: 1 });
       setFamilyId(newFamilyId);
@@ -218,6 +232,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
       familyId: settings.familyId,
       familyName,
       membersCount,
+      isLightTheme,
       setProvider,
       setViewType,
       setTheme,

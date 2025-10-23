@@ -1,7 +1,7 @@
 // useFoodImage.ts (actualizado: Google "imagen-estricto")
 'use client';
 
-import { IMAGE_PROVIDERS_MAP, ImageProvider } from "@/types";
+import { IMAGE_PROVIDERS, IMAGE_PROVIDERS_MAP, ImageProvider } from "@/types";
 import { useCallback } from "react";
 import { useSettings } from "@/contexts/settings-context";
 
@@ -11,24 +11,7 @@ const GOOGLE_CSE_CX    = process.env.NEXT_PUBLIC_GOOGLE_CSE_CX;
 const GOOGLE_API_KEY   = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
 
 export function useFoodImage() {
-  const { provider: currentProvider } = useSettings();
-
-  const pickLargestGoogleImage = (items: any[]) => {
-    // Ordena por área (width*height) desc y devuelve el link
-    const withDims = items
-      .map((it) => ({
-        url: it.link,
-        width: it.image?.width ?? 0,
-        height: it.image?.height ?? 0,
-        area: (it.image?.width ?? 0) * (it.image?.height ?? 0),
-        thumb: it.image?.thumbnailLink,
-      }))
-      .filter((i) => i.url);
-
-    if (!withDims.length) return null;
-    withDims.sort((a, b) => b.area - a.area);
-    return withDims[0].url || withDims[0].thumb || null;
-  };
+  const { provider: currentProvider, setProvider } = useSettings();
 
   const getProductImages = useCallback(
     async (food: string, provider?: ImageProvider): Promise<string[]> => {
@@ -61,17 +44,12 @@ export function useFoodImage() {
             console.error("Google CSE creds missing: NEXT_PUBLIC_GOOGLE_CSE_CX / NEXT_PUBLIC_GOOGLE_API_KEY");
             return [fallbackImage];
           }
-          // Afinado “estilo imágenes de Google”
-          // - searchType=image → solo imágenes
-          // - imgType=photo, imgSize=large → resultados más fotográficos y grandes
-          // - hl=es, gl=es, lr=lang_es → sesgo a español
-          // - num=10 → más candidatos para elegir el más grande/nítido
           const params = new URLSearchParams({
             q: food,
             searchType: 'image',
             cx: GOOGLE_CSE_CX,
             key: GOOGLE_API_KEY,
-            num: '20',
+            num: '10',
             safe: 'active',
             hl: 'es',
             gl: 'ES',
@@ -85,6 +63,14 @@ export function useFoodImage() {
 
         const response = await fetch(url, { headers });
         if (!response.ok) {
+          if (response.status === 429 && activeProvider === IMAGE_PROVIDERS_MAP.google) {
+            console.warn("Google API limit reached, switching to next provider.");
+            const currentIndex = IMAGE_PROVIDERS.indexOf(activeProvider);
+            const nextIndex = (currentIndex + 1) % IMAGE_PROVIDERS.length;
+            const nextProvider = IMAGE_PROVIDERS[nextIndex];
+            setProvider(nextProvider);
+            return getProductImages(food, nextProvider); 
+          }
           throw new Error(`Error fetching image from ${String(activeProvider)}: ${response.status}`);
         }
 
@@ -104,8 +90,8 @@ export function useFoodImage() {
 
         if (activeProvider === IMAGE_PROVIDERS_MAP.google && Array.isArray(data.items) && data.items.length > 0) {
           return data.items.map(
-            (photo: { link: string; thumbnailLink: string; }) => 
-              photo.link ?? photo.thumbnailLink ?? fallbackImage);
+            (photo: { link: string; image: { thumbnailLink: string; }; }) => 
+              photo.link ?? photo.image?.thumbnailLink ?? fallbackImage);
         }
 
         return [fallbackImage];
@@ -114,7 +100,7 @@ export function useFoodImage() {
         return [fallbackImage];
       }
     },
-    [currentProvider]
+    [currentProvider, setProvider]
   );
 
   const getProductImage = useCallback(

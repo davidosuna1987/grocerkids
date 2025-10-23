@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, type FormEvent, useEffect } from 'react';
@@ -59,18 +60,23 @@ export default function ProductSearchForm({ addProduct }: ProductSearchFormProps
   const [itemName, setItemName] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isSuggestionsLoading, setSuggestionsLoading] = useState(false);
   const { getProductImages } = useFoodImage();
 
   useEffect(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
     if (itemName.trim().length < 3) {
       setSuggestions([]);
       return;
     }
 
-    const handler = setTimeout(async () => {
+    debounceTimerRef.current = setTimeout(async () => {
       setSuggestionsLoading(true);
       const images = await getProductImages(itemName.trim());
       setSuggestions(images);
@@ -78,18 +84,22 @@ export default function ProductSearchForm({ addProduct }: ProductSearchFormProps
     }, 300);
 
     return () => {
-      clearTimeout(handler);
-      setSuggestionsLoading(false);
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
     };
   }, [itemName, getProductImages]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (itemName.trim() && !isAdding) {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+      setSuggestions([]); // Cierra la caja de sugerencias inmediatamente
       setIsAdding(true);
       await (addProduct as (name: string) => Promise<void>)(itemName.trim());
       setItemName('');
-      setSuggestions([]);
       setIsAdding(false);
       setTimeout(() => inputRef.current?.focus(), 50);
     }

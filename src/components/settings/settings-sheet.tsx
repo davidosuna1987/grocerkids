@@ -11,14 +11,13 @@ import {
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator'
 import { JoinFamilyLink, useSettings } from '@/contexts/settings-context';
-import { IMAGE_PROVIDERS_MAP, type ImageProvider } from '@/types';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { FormEvent, useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
 import { Loader2, Share2, LogOut, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useShare } from '@/hooks/use-share';
+import ProviderSelector from './provider-selector';
 
 type SettingsSheetProps = {
   open: boolean;
@@ -34,11 +33,9 @@ export default function SettingsSheet({
   onlyFamily = false,
 }: SettingsSheetProps) {
   const {
-    provider,
     familyId,
     familyName,
     membersCount,
-    setProvider,
     joinFamily,
     leaveFamily,
     generateJoinFamilyLink
@@ -47,7 +44,6 @@ export default function SettingsSheet({
   const [isJoining, setIsJoining] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
   const [isConfirmingLeave, setIsConfirmingLeave] = useState(false);
-  const { toast } = useToast();
   const { share } = useShare();
 
   const handleJoinFamily = async () => {
@@ -180,33 +176,7 @@ export default function SettingsSheet({
           {!onlyFamily &&
             <>
               <Separator />
-
-              <div className="flex flex-col gap-2">
-                <Label>Proveedor de imágenes</Label>
-                <div className='grid grid-cols-3 gap-2'>
-                    <Button 
-                        variant={provider === IMAGE_PROVIDERS_MAP.google ? 'default' : 'ghost'} 
-                        onClick={() => setProvider(IMAGE_PROVIDERS_MAP.google)}
-                        className='border'
-                    >
-                        Google
-                    </Button>
-                    <Button 
-                        variant={provider === IMAGE_PROVIDERS_MAP.pexels ? 'default' : 'ghost'} 
-                        onClick={() => setProvider(IMAGE_PROVIDERS_MAP.pexels)}
-                        className='border'
-                    >
-                        Pexels
-                    </Button>
-                    <Button 
-                        variant={provider === IMAGE_PROVIDERS_MAP.pixabay ? 'default' : 'ghost'} 
-                        onClick={() => setProvider(IMAGE_PROVIDERS_MAP.pixabay)}
-                        className='border'
-                    >
-                        Pixabay
-                    </Button>
-                </div>
-              </div>
+              <ProviderSelector />
             </>
           }
         </div>

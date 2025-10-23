@@ -46,7 +46,7 @@ export function useFoodImage() {
             console.error("Pexels API key missing: NEXT_PUBLIC_PEXELS_API_KEY");
             return [fallbackImage];
           }
-          url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(food)}&locale=es-ES&per_page=1`;
+          url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(food)}&locale=es-ES&per_page=20`;
           headers = { Authorization: PEXELS_API_KEY };
 
         } else if (activeProvider === IMAGE_PROVIDERS_MAP.pixabay) {
@@ -54,7 +54,7 @@ export function useFoodImage() {
             console.error("Pixabay API key missing: NEXT_PUBLIC_PIXABAY_API_KEY");
             return [fallbackImage];
           }
-          url = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(food)}&lang=es&image_type=photo&per_page=5`;
+          url = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(food)}&lang=es&image_type=photo&per_page=20`;
 
         } else if (activeProvider === IMAGE_PROVIDERS_MAP.google) {
           if (!GOOGLE_CSE_CX || !GOOGLE_API_KEY) {
@@ -71,7 +71,7 @@ export function useFoodImage() {
             searchType: 'image',
             cx: GOOGLE_CSE_CX,
             key: GOOGLE_API_KEY,
-            num: '10',
+            num: '20',
             safe: 'active',
             hl: 'es',
             gl: 'ES',
@@ -93,13 +93,13 @@ export function useFoodImage() {
         if (activeProvider === IMAGE_PROVIDERS_MAP.pexels && Array.isArray(data.photos) && data.photos.length > 0) {
           return data.photos.map(
             (photo: { src: { large: string; medium: string; }; }) => 
-              photo.src?.large ?? photo.src?.medium ?? fallbackImage);
+              photo.src?.medium ?? photo.src?.large ?? fallbackImage);
         }
 
         if (activeProvider === IMAGE_PROVIDERS_MAP.pixabay && Array.isArray(data.hits) && data.hits.length > 0) {
-          return data.photos.map(
-            (photo: { hits: { largeImageURL: string; webformatURL: string; }; }) => 
-              photo.hits?.largeImageURL ?? photo.hits?.webformatURL ?? fallbackImage);
+          return data.hits.map(
+            (photo: { largeImageURL: string; webformatURL: string; }) => 
+              photo.webformatURL ?? photo.largeImageURL ?? fallbackImage);
         }
 
         if (activeProvider === IMAGE_PROVIDERS_MAP.google && Array.isArray(data.items) && data.items.length > 0) {

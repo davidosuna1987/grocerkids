@@ -33,7 +33,7 @@ export function useFoodImage() {
   const getProductImage = useCallback(
     async (food: string, provider?: ImageProvider): Promise<string> => {
       const activeProvider = provider || currentProvider;
-      const fallbackImage = `https://picsum.photos/400/400?random=${crypto.randomUUID()}`;
+      const fallbackImage = `https://ui-avatars.com/api/?name=${food}&background=7d3eea&color=fff&length=1&bold=false&uppercase=true&format=svg`
 
       if (!food?.trim()) return fallbackImage;
 

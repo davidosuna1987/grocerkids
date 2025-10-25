@@ -33,10 +33,10 @@ export default function FavoritesSheet({
 
   const handleAddProduct = (product: Product) => {
     onAddProduct(product.name, product.image);
-    toast({
-      title: 'Producto añadido',
-      description: `${product.name} se ha añadido a tu lista de la compra.`,
-    });
+    // toast({
+    //   title: 'Producto añadido',
+    //   description: `${product.name} se ha añadido a tu lista de la compra.`,
+    // });
   }
   
   return (

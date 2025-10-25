@@ -5,7 +5,7 @@ import type { Product, FamilyData } from '@/types';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSettings } from '@/contexts/settings-context';
 import { useFirestore } from '@/firebase';
-import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 
 const FAVORITES_STORAGE_KEY = 'grocerkids-favorites';
 
@@ -38,6 +38,8 @@ export function useFavorites() {
           const data = docSnap.data() as FamilyData;
           const firestoreFavorites = data.favorites || [];
           setFavorites(firestoreFavorites);
+          // Sync local storage as well for seamless offline/online transition
+          updateLocalFavorites(firestoreFavorites);
         }
         setIsLoading(false);
       });
@@ -80,18 +82,20 @@ export function useFavorites() {
   );
   
   const toggleFavorite = useCallback((product: Product) => {
-    const isCurrentlyFavorite = favorites.some(fav => fav.id === product.id);
+    const productWithId = { ...product, id: product.id || crypto.randomUUID() };
+    const isCurrentlyFavorite = favorites.some(fav => fav.id === productWithId.id);
     let newFavorites;
 
     if (isCurrentlyFavorite) {
-      newFavorites = favorites.filter(fav => fav.id !== product.id);
+      newFavorites = favorites.filter(fav => fav.id !== productWithId.id);
     } else {
-      const favoriteProduct = { ...product, bought: false }; // Favorites are never "bought"
+      const favoriteProduct = { ...productWithId, bought: false }; // Favorites are never "bought"
       newFavorites = [...favorites, favoriteProduct];
     }
     
+    setFavorites(newFavorites); // Optimistic update for UI
+
     if (familyId) {
-      setFavorites(newFavorites); // Optimistic update
       updateFirestoreFavorites(newFavorites);
     } else {
       updateLocalFavorites(newFavorites);

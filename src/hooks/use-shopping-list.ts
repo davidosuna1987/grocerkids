@@ -9,7 +9,7 @@ import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 
 const STORAGE_KEY = 'grocerkids-list';
 
-export function useShoppingList() {
+export function useShoppingList(favorites: Product[]) {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { getProductImage } = useFoodImage();
@@ -21,27 +21,32 @@ export function useShoppingList() {
   const updateLocalProducts = (newProducts: Product[]) => {
     const sorted = newProducts.sort((a, b) => (a.bought === b.bought ? 0 : a.bought ? 1 : -1));
     setProducts(sorted);
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(sorted));
-    } catch (error) {
-      console.error('Failed to save products to localStorage', error);
+    if (!familyId) {
+      try {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(sorted));
+      } catch (error) {
+        console.error('Failed to save products to localStorage', error);
+      }
     }
   };
   
-  // Load from localStorage on initial client-side render
+  // Load from localStorage on initial client-side render, ONLY if not in a family
   useEffect(() => {
-    try {
-      const storedProducts = window.localStorage.getItem(STORAGE_KEY);
-      if (storedProducts) {
-        const parsedProducts: Product[] = JSON.parse(storedProducts);
-        updateLocalProducts(parsedProducts);
+    if (!familyId) {
+      try {
+        const storedProducts = window.localStorage.getItem(STORAGE_KEY);
+        if (storedProducts) {
+          const parsedProducts: Product[] = JSON.parse(storedProducts);
+          updateLocalProducts(parsedProducts);
+        }
+      } catch (error) {
+        console.error('Failed to load products from localStorage', error);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('Failed to load products from localStorage', error);
-    } finally {
-      setIsLoading(false);
     }
-  }, []);
+  }, [familyId]);
+
 
   // Effect to sync with Firestore
   useEffect(() => {
@@ -52,11 +57,9 @@ export function useShoppingList() {
       unsubscribeRef.current = onSnapshot(familyRef, (docSnap) => {
         if (docSnap.exists()) {
           const firestoreProducts = docSnap.data().shoppingList as Product[];
-          updateLocalProducts(firestoreProducts);
+          setProducts(firestoreProducts || []);
         } else {
-          // Family document doesn't exist, maybe it was just created
-          // Write the local list to Firestore
-           setDoc(familyRef, { id: familyId, shoppingList: products });
+           setDoc(familyRef, { id: familyId, shoppingList: products, members: 1, name: "Mi Lista", favorites: [] }, { merge: true });
         }
         setIsLoading(false);
       }, (error) => {
@@ -75,10 +78,10 @@ export function useShoppingList() {
         unsubscribeRef.current();
         unsubscribeRef.current = undefined;
       }
+      setIsLoading(false);
     }
   }, [familyId, firestore]);
   
-  // Debounced function to update Firestore
   const debouncedUpdateFirestore = useCallback(
     debounce(async (newProducts: Product[], fid: string) => {
       if (!firestore || !fid) return;
@@ -93,9 +96,12 @@ export function useShoppingList() {
   );
 
   const updateProducts = (newProducts: Product[]) => {
-    updateLocalProducts(newProducts);
+    const sorted = newProducts.sort((a, b) => (a.bought === b.bought ? 0 : a.bought ? 1 : -1));
+    setProducts(sorted);
     if (familyId) {
-      debouncedUpdateFirestore(newProducts, familyId);
+      debouncedUpdateFirestore(sorted, familyId);
+    } else {
+      updateLocalProducts(sorted);
     }
   };
 
@@ -103,17 +109,19 @@ export function useShoppingList() {
     async (name: string, image?: string) => {
       if (!name.trim()) return;
 
-      const imageUrl = image || (await getProductImage(name.trim()));
+      const existingFavorite = favorites.find(fav => fav.name.toLowerCase() === name.trim().toLowerCase());
+
+      const imageUrl = image || existingFavorite?.image || (await getProductImage(name.trim()));
 
       const newProduct: Product = {
-        id: crypto.randomUUID(),
+        id: existingFavorite?.id || crypto.randomUUID(),
         name: name.trim(),
         image: imageUrl,
         bought: false,
       };
       updateProducts([newProduct, ...products]);
     },
-    [products, getProductImage, familyId, updateProducts]
+    [products, getProductImage, updateProducts, favorites]
   );
 
   const addMultipleProducts = useCallback(
@@ -124,9 +132,10 @@ export function useShoppingList() {
       setIsLoading(true);
       const newProducts: Product[] = await Promise.all(
         validNames.map(async name => {
-          const imageUrl = await getProductImage(name.trim());
+          const existingFavorite = favorites.find(fav => fav.name.toLowerCase() === name.trim().toLowerCase());
+          const imageUrl = existingFavorite?.image || await getProductImage(name.trim());
           return {
-            id: crypto.randomUUID(),
+            id: existingFavorite?.id || crypto.randomUUID(),
             name: name.trim(),
             image: imageUrl,
             bought: false,
@@ -139,22 +148,22 @@ export function useShoppingList() {
       }
       setIsLoading(false);
     },
-    [products, getProductImage, familyId, updateProducts]
+    [products, getProductImage, updateProducts, favorites]
   );
 
   const toggleProductBought = useCallback((id: string) => {
     const newProducts = products.map(p => (p.id === id ? { ...p, bought: !p.bought } : p));
     updateProducts(newProducts);
-  }, [products, familyId, updateProducts]);
+  }, [products, updateProducts]);
 
   const deleteProduct = useCallback((id: string) => {
     const newProducts = products.filter(p => p.id !== id);
     updateProducts(newProducts);
-  }, [products, familyId, updateProducts]);
+  }, [products, updateProducts]);
 
   const clearList = useCallback(() => {
     updateProducts([]);
-  }, [familyId, updateProducts]);
+  }, [updateProducts]);
 
   return {
     products,

@@ -21,6 +21,7 @@ import FavoritesSheet from '@/components/favorites/favorites-sheet';
 import { useFavorites } from '@/hooks/use-favorites';
 
 export default function ShoppingCart() {
+  const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const {
     products,
     isLoading,
@@ -29,9 +30,8 @@ export default function ShoppingCart() {
     toggleProductBought,
     deleteProduct,
     clearList,
-  } = useShoppingList();
+  } = useShoppingList(favorites);
   const { viewType } = useSettings();
-  const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const [isUploadDialogOpen, setUploadDialogOpen] = React.useState(false);
   const [isClearListSheetOpen, setClearListSheetOpen] = React.useState(false);
   const [isCelebrationSheetOpen, setCelebrationSheetOpen] =

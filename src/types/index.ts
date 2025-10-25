@@ -34,3 +34,11 @@ export interface AppSettings {
   theme: Theme;
   familyId?: string | null;
 }
+
+export interface FamilyData {
+  id: string;
+  name: string;
+  shoppingList: Product[];
+  favorites: Product[];
+  members: number;
+}

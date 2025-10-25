@@ -9,12 +9,16 @@ type ProductListProps = {
   products: Product[];
   onToggleBought: (id: string) => void;
   onDelete: (id: string) => void;
+  onToggleFavorite: (product: Product) => void;
+  isFavorite: (productId: string) => boolean;
 };
 
 export default function ProductList({
   products,
   onToggleBought,
   onDelete,
+  onToggleFavorite,
+  isFavorite
 }: ProductListProps) {
   const { viewType } = useSettings();
   return (
@@ -33,6 +37,8 @@ export default function ProductList({
                 product={product}
                 onToggleBought={onToggleBought}
                 onDelete={onDelete}
+                onToggleFavorite={onToggleFavorite}
+                isFavorite={isFavorite(product.id)}
                 viewMode={viewType}
               />
             </motion.div>

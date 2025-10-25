@@ -20,12 +20,19 @@
             "$ref": "#/entities/Product"
           }
         },
+        "favorites": {
+          "type": "array",
+          "description": "The list of favorite products for the family.",
+          "items": {
+            "$ref": "#/entities/Product"
+          }
+        },
         "members": {
           "type": "number",
           "description": "The number of members in the family."
         }
       },
-      "required": ["id", "name", "shoppingList", "members"]
+      "required": ["id", "name", "shoppingList", "members", "favorites"]
     },
     "Product": {
       "title": "Product",

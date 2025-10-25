@@ -17,6 +17,8 @@ import { useSettings } from '@/contexts/settings-context';
 import NavbarTop from '@/components/layout/navbar-top';
 import { Confetti } from '@/components/effects/confetti';
 import { toast } from '@/hooks/use-toast';
+import FavoritesSheet from '@/components/favorites/favorites-sheet';
+import { useFavorites } from '@/hooks/use-favorites';
 
 export default function ShoppingCart() {
   const {
@@ -29,12 +31,14 @@ export default function ShoppingCart() {
     clearList,
   } = useShoppingList();
   const { viewType } = useSettings();
+  const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const [isUploadDialogOpen, setUploadDialogOpen] = React.useState(false);
   const [isClearListSheetOpen, setClearListSheetOpen] = React.useState(false);
   const [isCelebrationSheetOpen, setCelebrationSheetOpen] =
     React.useState(false);
   const [isSettingsSheetOpen, setSettingsSheetOpen] = React.useState(false);
   const [isCreateFamilySheetOpen, setCreateFamilySheetOpen] = React.useState(false);
+  const [isFavoritesSheetOpen, setFavoritesSheetOpen] = React.useState(false);
 
   const allProductsBought =
     products.length > 0 && products.every(p => p.bought);
@@ -73,6 +77,8 @@ export default function ShoppingCart() {
     <div className="flex min-h-screen w-full flex-col bg-background">
       {showConfetti && <Confetti />}
 
+      <NavbarTop />
+
       <UploadListSheet
         open={isUploadDialogOpen}
         onOpenChange={setUploadDialogOpen}
@@ -105,7 +111,13 @@ export default function ShoppingCart() {
         onClearList={handleClearList}
       />
 
-      <NavbarTop />
+      <FavoritesSheet
+        open={isFavoritesSheetOpen}
+        onOpenChange={setFavoritesSheetOpen}
+        favorites={favorites}
+        onToggleFavorite={toggleFavorite}
+        onAddProduct={addProduct}
+      />
       
       <div className="sticky top-16 z-30 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-[0_2px_5px_rgba(0,0,0,0.05)]">
         <div className="w-full max-w-3xl mx-auto p-4 sm:p-6 lg:px-8">
@@ -122,9 +134,11 @@ export default function ShoppingCart() {
               products={products}
               onToggleBought={toggleProductBought}
               onDelete={deleteProduct}
+              onToggleFavorite={toggleFavorite}
+              isFavorite={isFavorite}
             />
           ) : (
-            <EmptyState />
+            <EmptyState onAddFromFavorites={() => setFavoritesSheetOpen(true)} />
           )}
         </div>
       </main>
@@ -133,8 +147,7 @@ export default function ShoppingCart() {
         onUploadClick={() => setUploadDialogOpen(true)}
         onClearClick={handleClearClick}
         onSettingsClick={() => setSettingsSheetOpen(true)}
-        onCreateFamilyClick={() => setCreateFamilySheetOpen(true)}
-        hasProducts={products.length > 0}
+        onFavoritesClick={() => setFavoritesSheetOpen(true)}
       />
     </div>
   );

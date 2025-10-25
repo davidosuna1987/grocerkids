@@ -4,16 +4,18 @@ import type { Product } from '@/types';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { Button } from '../ui/button';
-import { Trash2 } from 'lucide-react';
+import { Star, Trash2 } from 'lucide-react';
 
 type ProductCardProps = {
   product: Product;
   onToggleBought: (id: string) => void;
   onDelete: (id: string) => void;
+  onToggleFavorite: (product: Product) => void;
+  isFavorite: boolean;
   viewMode?: 'list' | 'grid';
 };
 
-export default function ProductCard({ product, onToggleBought, onDelete, viewMode = 'list' }: ProductCardProps) {
+export default function ProductCard({ product, onToggleBought, onDelete, onToggleFavorite, isFavorite, viewMode = 'list' }: ProductCardProps) {
   const uniqueId = `item-${product.id}`;
   return (
     <div className={cn(
@@ -45,7 +47,24 @@ export default function ProductCard({ product, onToggleBought, onDelete, viewMod
           <p className="font-semibold text-foreground">{product.name}</p>
         </div>
       </label>
-       <div className={cn("absolute", viewMode === 'grid' ? 'top-2 right-2' : 'inset-y-0 right-0')}>
+       <div className={cn("absolute flex", viewMode === 'grid' ? 'top-2 right-2' : 'inset-y-0 right-0')}>
+          <Button
+            size={viewMode === 'list' ? 'default' : 'icon'}
+            variant="ghost"
+            className={cn(
+              'rounded-full transition-none',
+              viewMode === 'list' 
+                ? 'h-full w-14 rounded-none text-yellow-500 hover:text-yellow-600'
+                : 'h-8 w-8 text-yellow-500'
+            )}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleFavorite(product);
+            }}
+            aria-label={`Marcar ${product.name} como favorito`}
+          >
+            <Star className={cn('h-5 w-5', isFavorite && 'fill-current')} />
+          </Button>
           <Button
             size={viewMode === 'list' ? 'default' : 'icon'}
             variant="destructive"

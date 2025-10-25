@@ -1,51 +1,28 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Trash2, List, Grid, Camera, Settings, Share2 } from 'lucide-react';
-import { JoinFamilyLink, useSettings } from '@/contexts/settings-context';
+import { Trash2, List, Grid, Camera, Settings, Star } from 'lucide-react';
+import { useSettings } from '@/contexts/settings-context';
 import { VIEW_TYPES_MAP } from '@/types';
-import { useToast } from '@/hooks/use-toast';
-import { useShare } from '@/hooks/use-share';
 
 type BottomNavigationProps = {
   onUploadClick: () => void;
   onClearClick: () => void;
   onSettingsClick: () => void;
-  onCreateFamilyClick: () => void;
-  hasProducts: boolean;
+  onFavoritesClick: () => void;
 };
 
 export default function BottomNavigation({
   onUploadClick,
   onClearClick,
   onSettingsClick,
-  onCreateFamilyClick,
-  hasProducts,
+  onFavoritesClick,
 }: BottomNavigationProps) {
-  const { share } = useShare();
-  const { toast } = useToast();
-  const { viewType, setViewType, familyId, generateJoinFamilyLink } = useSettings();
+  const { viewType, setViewType, familyId } = useSettings();
 
   const handleViewToggle = () => {
     const newViewType = viewType === VIEW_TYPES_MAP.list ? VIEW_TYPES_MAP.grid : VIEW_TYPES_MAP.list;
     setViewType(newViewType);
-  };
-
-  const handleShare = async () => {
-    if (familyId) {
-      await copyToClipboard(familyId);
-    } else {
-      onCreateFamilyClick();
-    }
-  }
-  
-  const copyToClipboard = async (familyId: string | null | undefined) => {
-    if (familyId) {
-      const joinFamilyLink: JoinFamilyLink | null = generateJoinFamilyLink(familyId);
-      if (joinFamilyLink) {
-        await share({text: `¡Únete a mi lista de la compra!\n\n${joinFamilyLink.url}`})
-      }
-    }
   };
 
   return (
@@ -84,9 +61,9 @@ export default function BottomNavigation({
         <Button
           variant="ghost"
           className="flex flex-col items-center text-black/60 dark:text-white/60 h-auto hover:bg-transparent [&:hover>span]:text-primary [&:hover>svg]:text-primary"
-          onClick={handleShare}
+          onClick={onFavoritesClick}
         >
-          <Share2 className='!size-6 sm:!size-7' />
+          <Star className='!size-6 sm:!size-7' />
         </Button>
         
         <Button

@@ -15,6 +15,7 @@ export function useFoodImage() {
 
   const getProductImages = useCallback(
     async (food: string, provider?: ImageProvider): Promise<string[]> => {
+      const perPage = 10;
       const activeProvider = provider || currentProvider;
       const fallbackImage = `https://ui-avatars.com/api/?name=${food}&background=7d3eea&color=fff&length=1&bold=false&uppercase=true&format=svg`
 
@@ -29,7 +30,7 @@ export function useFoodImage() {
             console.error("Pexels API key missing: NEXT_PUBLIC_PEXELS_API_KEY");
             return [fallbackImage];
           }
-          url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(food)}&locale=es-ES&per_page=20`;
+          url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(food)}&locale=es-ES&per_page=${perPage}`;
           headers = { Authorization: PEXELS_API_KEY };
 
         } else if (activeProvider === IMAGE_PROVIDERS_MAP.pixabay) {
@@ -37,7 +38,7 @@ export function useFoodImage() {
             console.error("Pixabay API key missing: NEXT_PUBLIC_PIXABAY_API_KEY");
             return [fallbackImage];
           }
-          url = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(food)}&lang=es&image_type=photo&per_page=20`;
+          url = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(food)}&lang=es&image_type=photo&per_page=${perPage}`;
 
         } else if (activeProvider === IMAGE_PROVIDERS_MAP.google) {
           if (!GOOGLE_CSE_CX || !GOOGLE_API_KEY) {
@@ -49,7 +50,7 @@ export function useFoodImage() {
             searchType: 'image',
             cx: GOOGLE_CSE_CX,
             key: GOOGLE_API_KEY,
-            num: '10',
+            num: perPage.toString(),
             safe: 'active',
             hl: 'es',
             gl: 'ES',

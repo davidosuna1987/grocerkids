@@ -50,7 +50,7 @@ export default function FavoritesSheet({
         </SheetHeader>
         {favorites.length > 0 ? (
           <div className="flex-1 overflow-y-auto py-4">
-            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
               {favorites.map((product) => (
                 <div key={product.id} className="relative group aspect-square">
                   <div 

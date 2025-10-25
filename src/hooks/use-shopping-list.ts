@@ -6,6 +6,7 @@ import { useFoodImage } from './use-food-image';
 import { useSettings } from '@/contexts/settings-context';
 import { useFirestore } from '@/firebase';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { useToast } from './use-toast';
 
 const STORAGE_KEY = 'grocerkids-list';
 
@@ -16,6 +17,7 @@ export function useShoppingList(favorites: Product[]) {
   const { familyId } = useSettings();
   const firestore = useFirestore();
   const unsubscribeRef = useRef<() => void | undefined>();
+  const { toast } = useToast();
 
   // Helper to update state and localStorage
   const updateLocalProducts = (newProducts: Product[]) => {
@@ -109,19 +111,30 @@ export function useShoppingList(favorites: Product[]) {
     async (name: string, image?: string) => {
       if (!name.trim()) return;
 
-      const existingFavorite = favorites.find(fav => fav.name.toLowerCase() === name.trim().toLowerCase());
+      const trimmedName = name.trim();
+      const productExists = products.some(p => p.name.toLowerCase() === trimmedName.toLowerCase());
 
-      const imageUrl = image || existingFavorite?.image || (await getProductImage(name.trim()));
+      if (productExists) {
+        toast({
+          title: 'Producto duplicado',
+          description: `"${trimmedName}" ya está en tu lista de la compra.`,
+        });
+        return;
+      }
+
+      const existingFavorite = favorites.find(fav => fav.name.toLowerCase() === trimmedName.toLowerCase());
+
+      const imageUrl = image || existingFavorite?.image || (await getProductImage(trimmedName));
 
       const newProduct: Product = {
         id: existingFavorite?.id || crypto.randomUUID(),
-        name: name.trim(),
+        name: trimmedName,
         image: imageUrl,
         bought: false,
       };
       updateProducts([newProduct, ...products]);
     },
-    [products, getProductImage, updateProducts, favorites]
+    [products, getProductImage, updateProducts, favorites, toast]
   );
 
   const addMultipleProducts = useCallback(
@@ -130,21 +143,35 @@ export function useShoppingList(favorites: Product[]) {
       if (validNames.length === 0) return;
 
       setIsLoading(true);
-      const newProducts: Product[] = await Promise.all(
-        validNames.map(async name => {
-          const existingFavorite = favorites.find(fav => fav.name.toLowerCase() === name.trim().toLowerCase());
-          const imageUrl = existingFavorite?.image || await getProductImage(name.trim());
+      
+      const newProductsToAdd: Product[] = [];
+      const namesToAdd = new Set<string>();
+
+      for (const name of validNames) {
+        const trimmedName = name.trim();
+        const isDuplicateInList = products.some(p => p.name.toLowerCase() === trimmedName.toLowerCase());
+        const isDuplicateInBatch = Array.from(namesToAdd).some(n => n.toLowerCase() === trimmedName.toLowerCase());
+        
+        if (!isDuplicateInList && !isDuplicateInBatch) {
+          namesToAdd.add(trimmedName);
+        }
+      }
+
+      const productsFromNames = await Promise.all(
+        Array.from(namesToAdd).map(async name => {
+          const existingFavorite = favorites.find(fav => fav.name.toLowerCase() === name.toLowerCase());
+          const imageUrl = existingFavorite?.image || await getProductImage(name);
           return {
             id: existingFavorite?.id || crypto.randomUUID(),
-            name: name.trim(),
+            name: name,
             image: imageUrl,
             bought: false,
           };
         })
       );
-
-      if (newProducts.length > 0) {
-        updateProducts([...newProducts, ...products]);
+      
+      if (productsFromNames.length > 0) {
+        updateProducts([...productsFromNames, ...products]);
       }
       setIsLoading(false);
     },

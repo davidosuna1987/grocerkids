@@ -2,15 +2,14 @@ import Image from 'next/image';
 import { ThemeToggle } from '../theme-toggle';
 import { useSettings } from '@/contexts/settings-context';
 import { Button } from '../ui/button';
-import { cn } from '@/lib/utils';
 import CreateFamilySheet from '../settings/create-family-sheet';
 import { useState } from 'react';
 import SettingsSheet from '../settings/settings-sheet';
-import { RefreshCcw, Home } from "lucide-react"
+import { Loader2, RefreshCcw, Share2 } from "lucide-react"
 
 export default function NavbarTop() {
   const { familyId, familyName } = useSettings();
-  const settingsButtonText = familyId ? familyName || familyId : 'Sincronizar';
+  const settingsButtonText = familyId ? familyName : 'Sincronizar';
   const [isSettingsSheetOpen, setSettingsSheetOpen] = useState(false);
   const [isCreateFamilySheetOpen, setCreateFamilySheetOpen] = useState(false);
 
@@ -19,7 +18,7 @@ export default function NavbarTop() {
   const getIcon = () => {
     switch (Boolean(familyId)) {
       case true:
-        return <Home />
+        return familyName ? <Share2 /> : <Loader2 className="animate-spin" />
       case false:
         return <RefreshCcw />
       default:

@@ -81,6 +81,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
 
   useEffect(() => {
     try {
+      console.log('useEffect: ', {settings})
       window.localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
     } catch (error) {
       console.error('Failed to save settings to localStorage or set theme', error);
@@ -88,6 +89,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
   }, [settings]);
   
   const setFamilyId = useCallback((familyId: string | null) => {
+    console.log('setFamilyId: ', familyId);
     setSettings(prev => ({ ...prev, familyId }));
     if (!familyId) {
       setFamilyName(null);
@@ -96,7 +98,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
   }, []);
 
   useEffect(() => {
-    if (settings.familyId && firestore) {
+    if (!settings.familyId || !firestore) return;
       const familyRef = doc(firestore, 'families', settings.familyId);
       const unsubscribe = onSnapshot(familyRef, (docSnap) => {
         if (docSnap.exists()) {
@@ -105,16 +107,15 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
           setFamilyName(data.name || null);
         } else {
           // If doc is deleted from another client, reset local state
+          console.log(1)
           setFamilyId(null);
         }
       }, (error) => {
+        console.log(1)
         console.error("Error with family snapshot:", error);
         setFamilyId(null);
       });
       return () => unsubscribe();
-    } else {
-        setFamilyId(null);
-    }
   }, [settings.familyId, firestore, setFamilyId]);
 
   const setProvider = useCallback((provider: ImageProvider) => {
@@ -167,6 +168,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
           });
         }
 
+        console.log(4);
         setFamilyId(null);
         return { success: true, wasLastMember };
     } catch (error) {

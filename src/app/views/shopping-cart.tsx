@@ -112,7 +112,6 @@ export default function ShoppingCart() {
       />
 
       <FavoritesSheet
-        products={products}
         open={isFavoritesSheetOpen}
         onOpenChange={setFavoritesSheetOpen}
         favorites={favorites}

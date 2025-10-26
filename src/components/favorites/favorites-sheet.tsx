@@ -13,9 +13,10 @@ import Image from 'next/image';
 import { Button } from '../ui/button';
 import { Star, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 type FavoritesSheetProps = {
-  products: Produc[];
+  products: Product[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
   favorites: Product[];
@@ -24,7 +25,7 @@ type FavoritesSheetProps = {
 };
 
 export default function FavoritesSheet({
-  products
+  products,
   open,
   onOpenChange,
   favorites,
@@ -34,6 +35,10 @@ export default function FavoritesSheet({
 
   const handleAddProduct = (product: Product) => {
     onAddProduct(product.name, product.image);
+  }
+
+  const isProductInList = (productId: string) => {
+    return products.some(p => p.id === productId);
   }
   
   return (
@@ -54,15 +59,21 @@ export default function FavoritesSheet({
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: index * 0.05 }}
-                  onClick={() => handleAddProduct(product)}
-                  className="aspect-square relative rounded-md overflow-hidden cursor-pointer hover:opacity-80 transition-opacity relative"
+                  onClick={() => !isProductInList(product.id) && handleAddProduct(product)}
+                  className={cn(
+                    "aspect-square relative rounded-md overflow-hidden cursor-pointer hover:opacity-80 transition-opacity",
+                    isProductInList(product.id) && "opacity-50 pointer-events-none"
+                  )}
                 >
                   <Image src={product.image} alt={product.name} fill sizes="150px" className="object-cover" unoptimized />
                   <Button
                     size="icon"
                     variant="destructive"
-                    className="rounded-full transition-none h-8 w-8 absolute top-1 right-1"
-                    onClick={() => onToggleFavorite(product)}
+                    className="rounded-full transition-none h-8 w-8 absolute top-1 right-1 pointer-events-auto"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleFavorite(product);
+                    }}
                     aria-label={`Eliminar ${product.name} de favoritos`}
                   >
                     <Trash2 className="h-5 w-5" />
@@ -86,3 +97,4 @@ export default function FavoritesSheet({
     </Sheet>
   );
 }
+

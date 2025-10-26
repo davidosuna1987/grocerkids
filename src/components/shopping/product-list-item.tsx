@@ -47,7 +47,7 @@ export default function ProductCard({ product, onToggleBought, onDelete, onToggl
           <p className="font-semibold text-foreground">{product.name}</p>
         </div>
       </label>
-       <div className={cn("absolute flex", viewMode === 'grid' ? 'top-2 right-2' : 'inset-y-0 right-0')}>
+       <div className={cn("absolute flex", viewMode === 'grid' ? 'top-0 right-0 p-2 flex flex-col-reverse justify-between h-full' : 'inset-y-0 right-0')}>
           <Button
             size={viewMode === 'list' ? 'default' : 'icon'}
             variant="ghost"
@@ -63,7 +63,7 @@ export default function ProductCard({ product, onToggleBought, onDelete, onToggl
             }}
             aria-label={`Marcar ${product.name} como favorito`}
           >
-            <Star className={cn('h-5 w-5', isFavorite && 'fill-current')} />
+            <Star className={cn(viewMode === 'grid' ? '!size-6' : '!size-5', isFavorite && 'fill-current')} />
           </Button>
           <Button
             size={viewMode === 'list' ? 'default' : 'icon'}

@@ -4,7 +4,7 @@
 import {
   Sheet,
   SheetContent,
-  SheetHeader,
+  SheetHeader,  
   SheetTitle,
   SheetDescription,
 } from '@/components/ui/sheet';
@@ -12,10 +12,10 @@ import { Product } from '@/types';
 import Image from 'next/image';
 import { Button } from '../ui/button';
 import { Star, Trash2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { toast } from '@/hooks/use-toast';
+import { motion } from 'framer-motion';
 
 type FavoritesSheetProps = {
+  products: Produc[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
   favorites: Product[];
@@ -24,6 +24,7 @@ type FavoritesSheetProps = {
 };
 
 export default function FavoritesSheet({
+  products
   open,
   onOpenChange,
   favorites,
@@ -33,10 +34,6 @@ export default function FavoritesSheet({
 
   const handleAddProduct = (product: Product) => {
     onAddProduct(product.name, product.image);
-    // toast({
-    //   title: 'Producto añadido',
-    //   description: `${product.name} se ha añadido a tu lista de la compra.`,
-    // });
   }
   
   return (
@@ -49,35 +46,28 @@ export default function FavoritesSheet({
           </SheetDescription>
         </SheetHeader>
         {favorites.length > 0 ? (
-          <div className="flex-1 overflow-y-auto py-4">
+          <div className="flex-1 overflow-y-auto py-4">            
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
-              {favorites.map((product) => (
-                <div key={product.id} className="relative group aspect-square">
-                  <div 
-                    className="w-full h-full rounded-xl overflow-hidden cursor-pointer"
-                    onClick={() => handleAddProduct(product)}
-                  >
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      sizes="(max-width: 640px) 50vw, (max-width: 768px) 25vw, 20vw"
-                      className="object-cover transition-transform group-hover:scale-105"
-                      unoptimized
-                    />
-                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <p className="text-white text-center font-semibold p-2">{product.name}</p>
-                    </div>
-                  </div>
+              {favorites.map((product, index) => (
+                <motion.div
+                  key={`${index}-${product.id}-${product.name.replace(/\s+/g, '-')}`}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.05 }}
+                  onClick={() => handleAddProduct(product)}
+                  className="aspect-square relative rounded-md overflow-hidden cursor-pointer hover:opacity-80 transition-opacity relative"
+                >
+                  <Image src={product.image} alt={product.name} fill sizes="150px" className="object-cover" unoptimized />
                   <Button
                     size="icon"
                     variant="destructive"
-                    className="absolute top-2 right-2 h-7 w-7 opacity-80 group-hover:opacity-100"
+                    className="rounded-full transition-none h-8 w-8 absolute top-1 right-1"
                     onClick={() => onToggleFavorite(product)}
+                    aria-label={`Eliminar ${product.name} de favoritos`}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-5 w-5" />
                   </Button>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
